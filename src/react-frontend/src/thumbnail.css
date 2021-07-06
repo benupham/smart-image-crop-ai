@@ -1,0 +1,37 @@
+.thumb {
+  margin: 15px;
+}
+
+.thumb input[type="checkbox"] {
+  display: none; 
+}
+
+.thumb label {
+  display: block;
+  width: 200px;
+  text-align: center;
+}
+
+.thumb label img {
+  display: inline;
+  max-width: 100%;
+  transition-duration: 0.2s;
+  transform-origin: 50% 50%;
+}
+
+.thumb :checked+label {
+  border-color: #ddd;
+}
+
+.thumb :checked+label::after {
+  content: "✓";
+  font-size: 2em;
+  transform: scale(1);
+  position: absolute;
+}
+
+.thumb :checked+label img {
+  transform: scale(0.9);
+  box-shadow: 0 0 5px #333;
+  z-index: -1;
+}
