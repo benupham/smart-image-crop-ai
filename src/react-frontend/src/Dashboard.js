@@ -12,8 +12,7 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
   const [loading, setLoading] = useState(true);
 
   const requestSmartCrop = async (preview = true, thumb) => {
-    console.log(thumb)
-    thumb.loading = true; 
+    
     const isPreview = preview === true ? 1 : 0;
     const {size, attachment} = thumb;
 
@@ -31,12 +30,12 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
         thumb.url = json.body.smartcrop.image_url; 
       } else {
         thumb.isChecked = false; 
-        thumb.cacheId = Date.now(); 
+        thumb.cacheId = Date.now();
+        thumb.url = thumb.source_url; 
       }
       const newThumbs = thumbs.map(t => (
         thumb.file === t.file ? t = thumb : t
       )); 
-      // console.log(newThumbs[i].isChecked)
       setThumbs(newThumbs);
       return json.body.smartcrop; 
     } else {
@@ -46,14 +45,15 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
   
   } 
 
-  const handleSubmit = async (e, preview = false) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const preview = e.target.id === 'save' ? false : true;
+    console.log('preview',preview)
+    console.log('e',e.target.id)
+
     const reqCrops = thumbs.filter( thumb => thumb.isChecked === true);
-    // console.log('reqCrops',reqCrops)
     const promisesPromises = reqCrops.map(async thumb => {
-      // console.log('thumb', thumb)
       const response = await requestSmartCrop(preview, thumb);
-      // console.log('outer response',response)
       return response
     })
     const previews = await Promise.all(promisesPromises);
@@ -135,9 +135,13 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
   return (
      
     <div className="smart_image_crop_wrapper">
-      <button onClick={handleSubmit}>Submit</button> 
+    <div className="filter-bar">
+      <button onClick={handleSubmit} className="button button-primary" id="preview">Preview</button> 
       <input type="text" onChange={handleSearch} placeholder="Search images"/> 
-
+      <button className="next button button-primary">Next Page</button>
+      <button className="prev button button-primary">Prev Page</button>
+      <button onClick={handleSubmit} className="button" id="save">Save & <span style={{color: 'red'}}>Overwrite</span></button>
+    </div>
       <div className="smart_image_crop_thumbs">
         {errorMessage.length > 0 &&
           <div className="error-message">{errorMessage}</div>
