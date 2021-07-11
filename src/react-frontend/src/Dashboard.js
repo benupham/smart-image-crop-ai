@@ -1,20 +1,19 @@
-import React, { useEffect, useState, useCallback }  from 'react';
+import React, { useEffect, useState }  from 'react';
 import './dashboard.css'
-import { collateThumbs, getCroppedSizes } from './helper';
+import { collateThumbs } from './helper';
 import Thumbnail from './Thumbnail';
 
-const Dashboard = ({ urls, nonce }) => {
-  const [croppedSizes, setSizes] = useState([]);
+const Dashboard = ({ urls, nonce, croppedSizes }) => {
   const [images, setImages] = useState([]);
   const [thumbs, setThumbs] = useState([]);
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
-  const [lastPage, setLastPage] = useState(10000);
-  const [attachmentId, setAttachmentId] = useState('');
-  // const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const requestSmartCrop = async (preview = true, thumb) => {
     console.log(thumb)
+    thumb.loading = true; 
     const isPreview = preview === true ? 1 : 0;
     const {size, attachment} = thumb;
 
@@ -75,23 +74,9 @@ const Dashboard = ({ urls, nonce }) => {
     setThumbs(newThumbs);
   }
 
-  const handlePageChange = useCallback( (event, page) => {
-    
-      event.preventDefault();
-      setPage(page);
-
-  },[setPage]);
-
-
-  useEffect(() => {
-    const croppedSizes = getCroppedSizes();
-    setSizes(croppedSizes);
-
-  }, [])
-
   useEffect( () => {
 
-    const requestImages = async () => {
+    const requestImages = async ( attachmentId ) => {
 
       if (!window.smart_image_crop_ajax || !window.smart_image_crop_ajax.urls) {
         console.error("Can't find WP API endpoints.");
@@ -99,39 +84,48 @@ const Dashboard = ({ urls, nonce }) => {
       const mediaApi = window.smart_image_crop_ajax.urls.media; 
       const nonce = window.smart_image_crop_ajax.nonce; 
   
-      const id = query.length > 0 ? '' : attachmentId; 
+      const id = ( query.length > 0 || page > 1 ) ? '' : attachmentId; 
       console.log('id',id);
       
       const conn = mediaApi.indexOf('?') > -1 ? '&' : '?';
       const url = `${mediaApi}${conn}include=${id}&search=${query}&page=${page}&mime_type=image/png,image/jpg,image/webp`;
       console.log('url', url)
+
       const response = await fetch(url, {
         headers: new Headers({ 'X-WP-Nonce': nonce } )
       })
 
       const data = await response.json();
       console.log(data);
+      setLoading(false);
+      
+      if (data.length === 0) {
+        setErrorMessage('No image sizes found.');
+        return;
+      }
 
       if (data.code && data.code === 'rest_post_invalid_page_number') {
         setPage(page - 1);
         return;
       }
-      
+
+      if (data.code) {
+        setErrorMessage(`There was an error: ${data.message}`);
+        return;
+      }
+
+      setErrorMessage('');
       setImages(data);
     
     }
 
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    const id = urlParams.get('attachmentId');
-    if ( id != null ) {
-      setAttachmentId(id);
-    }    
-    console.log(attachmentId);
+    const id = urlParams.get('attachmentId') ? urlParams.get('attachmentId') : '';
 
-    requestImages();
+    requestImages( id );
 
-  }, [query, page, attachmentId])
+  }, [query, page])
 
   useEffect(() => {
     const thumbs = collateThumbs(images, croppedSizes);
@@ -141,21 +135,19 @@ const Dashboard = ({ urls, nonce }) => {
   return (
      
     <div className="smart_image_crop_wrapper">
-      <div className="image-sizes-list">
-        <h2>Cropped Image Sizes</h2>
-        <p>Only these image sizes are eligible for smart cropping. Other image sizes are not cropped.</p>
-        <ul>
-          {croppedSizes && croppedSizes.map(size => (
-            <li key={size}>{size}</li>
-          ))}
-        </ul>
-      </div>
       <button onClick={handleSubmit}>Submit</button> 
       <input type="text" onChange={handleSearch} placeholder="Search images"/> 
+
       <div className="smart_image_crop_thumbs">
-            {thumbs && thumbs.map( (thumb, index) => (
-              <Thumbnail thumb={thumb} key={index} index={index} handleChange={handleThumbChecked} />
-            ))}
+        {errorMessage.length > 0 &&
+          <div className="error-message">{errorMessage}</div>
+        }
+        {loading === true && 
+          <div className="loading"><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>
+        }
+        {thumbs && thumbs.map( (thumb, index) => (
+          <Thumbnail thumb={thumb} key={index} index={index} handleChange={handleThumbChecked} />
+        ))}
       </div>
       <button onClick={handleSubmit}>Submit</button>
     </div>

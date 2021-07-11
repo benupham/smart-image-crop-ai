@@ -1,5 +1,6 @@
 .thumb {
   margin: 15px;
+  position: relative;
 }
 
 .thumb input[type="checkbox"] {
@@ -34,4 +35,14 @@
   transform: scale(0.9);
   box-shadow: 0 0 5px #333;
   z-index: -1;
+}
+
+.thumb .lds-ring {
+  width: 80px;
+  height: 80px;
+  position: absolute;
+  top: 50%;
+  margin-top: -40px;
+  left: 50%;
+  margin-left: -40px;
 }

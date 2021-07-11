@@ -7,6 +7,9 @@ const Thumbnail = (props) => {
 
   return (
     <div key={id} className="thumb">
+      {thumb.loading && 
+        <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
+      }
       <input type="checkbox" name={id} id={id} checked={thumb.isChecked} onChange={(e) => props.handleChange(e, props.index)}/>
       <label htmlFor={id}>
         <img src={thumb.url + '?cache=' + thumb.cacheId} alt={id} />

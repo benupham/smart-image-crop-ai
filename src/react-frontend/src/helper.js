@@ -18,6 +18,7 @@ export const collateThumbs = (imagesJson, croppedSizes) => {
         thumb.attachment.source_url = image.guid.rendered;
         thumb.url = thumb.source_url;
         thumb.cacheId = Date.now();
+        thumb.loading = false; 
         acc.push(thumb);
       }
       return acc; 
@@ -33,11 +34,7 @@ export const collateThumbs = (imagesJson, croppedSizes) => {
 
 }
 
-export const getCroppedSizes = () => {
-
-  if (!window.smart_image_crop_ajax || !window.smart_image_crop_ajax.imageSizes) return
-
-  const sizes = window.smart_image_crop_ajax.imageSizes; 
+export const getCroppedSizes = ( sizes ) => {
 
   const croppedSizes = Object.entries(sizes).reduce((acc, [size,details]) => {
     if (details.crop !== false) {
@@ -52,24 +49,3 @@ export const getCroppedSizes = () => {
 }
 
 
-
-// export const getSmartCrop = async (size, originalId, [width,height]) => {
-//   const reqUrl = `${proxy}?image=${originalId}&width=${width}&height=${height}&size=${size}`
-//   console.log('reqURL',reqUrl)
-//   const response = await fetch(reqUrl, {
-//     headers: new Headers({ 'X-WP-Nonce': nonce}),
-//   })
-//   console.log('response', response)
-//   const data = await response.json();
-//   const cropHint = data;
-//   console.log('data', data)
-
-// }
-
-// export const saveCrop = async (originalId, thumbUri) => {
-//   if (cropHints.length === 0) getCropHint(); 
-//   const newThumbUrl = await fetch(proxy, {
-//     headers: new Headers({ 'X-WP-Nonce': nonce}),
-
-//   })
-// }
