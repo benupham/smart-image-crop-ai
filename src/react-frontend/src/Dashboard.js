@@ -1,4 +1,4 @@
-import React, { useEffect, useState }  from 'react';
+import React, { useEffect, useState, useCallback }  from 'react';
 import './dashboard.css'
 import { collateThumbs, getCroppedSizes } from './helper';
 import Thumbnail from './Thumbnail';
@@ -7,27 +7,11 @@ const Dashboard = ({ urls, nonce }) => {
   const [croppedSizes, setSizes] = useState([]);
   const [images, setImages] = useState([]);
   const [thumbs, setThumbs] = useState([]);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(10000);
+  const [attachmentId, setAttachmentId] = useState('');
   // const [errorMessage, setErrorMessage] = useState('');
-
-  const requestImages = async ( q = '', page = 1) => {
-
-    if (!window.smart_image_crop_ajax || !window.smart_image_crop_ajax.urls) {
-      console.error("Can't find WP API endpoints.");
-    }
-    const endpoint = window.smart_image_crop_ajax.urls.media; 
-    const nonce = window.smart_image_crop_ajax.nonce; 
-  
-    let images = null;
-    const connector = endpoint.indexOf('?') > -1 ? '&' : '?';
-    const response = await fetch(`${endpoint}${connector}&search=${q}&page=${page}`, {
-      headers: new Headers({ 'X-WP-Nonce': nonce })
-    })
-    // console.log('response', response)
-    images = await response.json();
-    // console.log('response json', images)
-    setImages(images);
-  
-  }
 
   const requestSmartCrop = async (preview = true, thumb) => {
     console.log(thumb)
@@ -77,6 +61,11 @@ const Dashboard = ({ urls, nonce }) => {
     console.log(previews);
   }
 
+  const handleSearch = (e) => {
+    const query = e.target.value; 
+    setQuery(query);
+  }
+
   const handleThumbChecked = (e, i) => {
     const value = e.target.checked; 
     const newThumbs = thumbs.map((thumb, index) => (
@@ -86,24 +75,68 @@ const Dashboard = ({ urls, nonce }) => {
     setThumbs(newThumbs);
   }
 
+  const handlePageChange = useCallback( (event, page) => {
+    
+      event.preventDefault();
+      setPage(page);
+
+  },[setPage]);
+
+
   useEffect(() => {
     const croppedSizes = getCroppedSizes();
     setSizes(croppedSizes);
+
   }, [])
 
   useEffect( () => {
+
+    const requestImages = async () => {
+
+      if (!window.smart_image_crop_ajax || !window.smart_image_crop_ajax.urls) {
+        console.error("Can't find WP API endpoints.");
+      }
+      const mediaApi = window.smart_image_crop_ajax.urls.media; 
+      const nonce = window.smart_image_crop_ajax.nonce; 
+  
+      const id = query.length > 0 ? '' : attachmentId; 
+      console.log('id',id);
+      
+      const conn = mediaApi.indexOf('?') > -1 ? '&' : '?';
+      const url = `${mediaApi}${conn}include=${id}&search=${query}&page=${page}&mime_type=image/png,image/jpg,image/webp`;
+      console.log('url', url)
+      const response = await fetch(url, {
+        headers: new Headers({ 'X-WP-Nonce': nonce } )
+      })
+
+      const data = await response.json();
+      console.log(data);
+
+      if (data.code && data.code === 'rest_post_invalid_page_number') {
+        setPage(page - 1);
+        return;
+      }
+      
+      setImages(data);
+    
+    }
+
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const id = urlParams.get('attachmentId');
+    if ( id != null ) {
+      setAttachmentId(id);
+    }    
+    console.log(attachmentId);
+
     requestImages();
-  }, [])
+
+  }, [query, page, attachmentId])
 
   useEffect(() => {
     const thumbs = collateThumbs(images, croppedSizes);
       setThumbs(thumbs);  
   }, [images, croppedSizes])
-
-  // useEffect(() => {
-
-  // }, [errorMessage])
-
 
   return (
      
@@ -117,7 +150,8 @@ const Dashboard = ({ urls, nonce }) => {
           ))}
         </ul>
       </div>
-      <button onClick={handleSubmit}>Submit</button>    
+      <button onClick={handleSubmit}>Submit</button> 
+      <input type="text" onChange={handleSearch} placeholder="Search images"/> 
       <div className="smart_image_crop_thumbs">
             {thumbs && thumbs.map( (thumb, index) => (
               <Thumbnail thumb={thumb} key={index} index={index} handleChange={handleThumbChecked} />
@@ -127,6 +161,7 @@ const Dashboard = ({ urls, nonce }) => {
     </div>
   );
 }
+
 
 export default Dashboard;
 

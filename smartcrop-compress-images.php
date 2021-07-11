@@ -4,7 +4,7 @@
  * Description: Use the power of AI to crop your images perfectly.
  * Version: beta
  * Author: Ben Upham
- * Text Domain: tiny-compress-images
+ * Text Domain: smartcrop
  * License: GPLv2 or later
  */
 

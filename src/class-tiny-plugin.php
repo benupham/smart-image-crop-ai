@@ -46,6 +46,8 @@ class Tiny_Plugin extends Tiny_WP_Base {
 			10, 2
 		);
 
+		add_filter( 'attachment_fields_to_edit', array( $this, 'add_smartcrop_button_to_edit_media_modal_fields_area' ), 99, 2 );		
+
 		load_plugin_textdomain( self::NAME, false,
 			dirname( plugin_basename( __FILE__ ) ) . '/languages'
 		);
@@ -102,6 +104,14 @@ class Tiny_Plugin extends Tiny_WP_Base {
 	}
 
 	public function admin_init() {
+
+
+		// Add a regenerate button to the non-modal edit media page.
+		add_action( 'attachment_submitbox_misc_actions', array( $this, 'add_button_to_media_edit_page' ), 99 );
+
+		// Add a regenerate link to actions list in the media list view.
+		add_filter( 'media_row_actions', array( $this, 'add_smartcrop_link_to_media_list_view' ), 10, 2 );		
+
 		add_action('wp_dashboard_setup',
 			$this->get_method( 'add_dashboard_widget' )
 		);
@@ -132,7 +142,7 @@ class Tiny_Plugin extends Tiny_WP_Base {
 		);
 
 		$plugin = plugin_basename(
-			dirname( dirname( __FILE__ ) ) . '/tiny-compress-images.php'
+			dirname( dirname( __FILE__ ) ) . '/smartcrop-compress-images.php'
 		);
 
 		add_filter( "plugin_action_links_$plugin",
@@ -142,6 +152,49 @@ class Tiny_Plugin extends Tiny_WP_Base {
 		$this->tiny_compatibility();
 
 		add_thickbox();
+	}
+
+
+	/**
+	 * Helper function to create a URL to smartcrop a single image.
+	 *
+	 * @param int $id The attachment ID that should be regenerated.
+	 *
+	 * @return string The URL to the admin page.
+	 */
+	public function create_page_url( $id ) {
+		return add_query_arg( 'page', 'smartcrop-settings', admin_url( 'options-general.php' ) ) . '&attachmentId=' . $id;
+	}
+
+	/**
+	 * Add a smartcrop button to the submit box on the non-modal "Edit Media" screen for an image attachment.
+	 */
+	public function add_button_to_media_edit_page() {
+		global $post;
+
+		echo '<div class="misc-pub-section">';
+		echo '<a href="' . esc_url( $this->create_page_url( $post->ID ) ) . '" class="button-secondary button-large" title="' . esc_attr( __( 'Smartcrop the thumbnails for this single image', 'smartcrop' ) ) . '">' . _x( 'Smartcrop Thumbnails', 'action for a single image', 'smartcrop' ) . '</a>';
+		echo '</div>';
+	}
+
+	public function add_smartcrop_button_to_edit_media_modal_fields_area( $form_fields, $post ) {
+		
+		$form_fields['smartcrop'] = array(
+			'label'         => '',
+			'input'         => 'html',
+			'html'          => '<a href="' . esc_url( $this->create_page_url( $post->ID ) ) . '" class="button-secondary button-large" title="' . esc_attr( __( 'Smartcrop the thumbnails for this single image', 'smartcrop' ) ) . '">' . _x( 'Smartcrop Thumbnails', 'action for a single image', 'smartcrop' ) . '</a>',
+			'show_in_modal' => true,
+			'show_in_edit'  => false,
+		);
+
+		return $form_fields;
+	}	
+
+	public function add_smartcrop_link_to_media_list_view( $actions, $post ) {
+
+		$actions['smartcrop_thumbnails'] = '<a href="' . esc_url( $this->create_page_url( $post->ID ) ) . '" title="' . esc_attr( __( 'Smartcrop the thumbnails for this single image', 'smartcrop' ) ) . '">' . _x( 'Smartcrop', 'action for a single image', 'smartcrop' ) . '</a>';
+
+		return $actions;
 	}
 
 	public function admin_menu() {

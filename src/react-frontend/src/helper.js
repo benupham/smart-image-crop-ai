@@ -17,7 +17,7 @@ export const collateThumbs = (imagesJson, croppedSizes) => {
         thumb.attachment.file = image.media_details.file;
         thumb.attachment.source_url = image.guid.rendered;
         thumb.url = thumb.source_url;
-        thumb.cacheId = Date().now;
+        thumb.cacheId = Date.now();
         acc.push(thumb);
       }
       return acc; 
