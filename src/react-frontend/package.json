@@ -6,7 +6,8 @@
     "date-fns": "^2.16.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-scripts": "^4.0.1"
+    "react-scripts": "^4.0.1",
+    "styled-components": "^5.3.0"
   },
   "devDependencies": {
     "archiver": "^3.1.1",
@@ -30,5 +31,10 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "singleQuote": true
+  }
 }

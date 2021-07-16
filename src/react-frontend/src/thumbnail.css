@@ -1,6 +1,10 @@
 .thumb {
-  margin: 15px;
+  padding: 10px;
   position: relative;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
 }
 
 .thumb input[type="checkbox"] {
@@ -9,13 +13,14 @@
 
 .thumb label {
   display: block;
-  width: 200px;
+  width: 100%;
   text-align: center;
 }
 
 .thumb label img {
   display: inline;
   max-width: 100%;
+  max-height: 100%;
   transition-duration: 0.2s;
   transform-origin: 50% 50%;
 }
@@ -38,6 +43,7 @@
 }
 
 .thumb .lds-ring {
+  display: none;
   width: 80px;
   height: 80px;
   position: absolute;
@@ -45,4 +51,12 @@
   margin-top: -40px;
   left: 50%;
   margin-left: -40px;
+}
+.crops-loading .thumb.checked .lds-ring {
+  display: block;
+  z-index: 10;
+}
+
+.thumb.smartcrop {
+  background-color: rgba(0, 128, 0, 0.2);
 }
