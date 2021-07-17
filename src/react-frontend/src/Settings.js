@@ -56,29 +56,28 @@ const Settings = ({ nonce, urls, croppedSizes }) => {
   }, [nonce, urls]);
 
   return (
-    <div>
+    <div className="wrap">
       <h1>Smart Image Crop AI</h1>
-      <Accordion title={'Settings'} height={!isGetting && !apiKey ? 1 : 0}>
-        {isGetting && <p>Loading...</p>}
-        {!isGetting && !apiKey && (
-          <p>
-            <a
-              href="https://cloud.google.com/vision/docs/setup"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="button button-primary"
-            >
-              Get your Google Cloud Vision API key here.
-            </a>
-          </p>
-        )}
+      <Accordion title={'Settings'}>
         <form onSubmit={updateSettings}>
           <p>
             <label>
-              API Key:{' '}
+              Google Cloud Vision API Key:{' '}
               <input type="text" value={apiKey} onChange={updateApiKey} />
             </label>
           </p>
+          {isGetting && <p>Loading...</p>}
+          {!isGetting && !apiKey && (
+            <p>
+              <a
+                href="https://cloud.google.com/vision/docs/setup"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Get your Google Cloud Vision API key here.
+              </a>
+            </p>
+          )}
           {errorMessage && (
             <div className="error settings-error">
               <p>{errorMessage}</p>
@@ -95,7 +94,7 @@ const Settings = ({ nonce, urls, croppedSizes }) => {
               className="button button-primary"
               disabled={isSaving}
             >
-              Submit
+              Save API key
             </button>
           </p>
         </form>

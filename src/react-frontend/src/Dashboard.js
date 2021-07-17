@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './dashboard.css';
 import { collateThumbs } from './helper';
 import Thumbnail from './Thumbnail';
+import FilterBar from './FilterBar';
 
 const Dashboard = ({ urls, nonce, croppedSizes }) => {
   const [images, setImages] = useState([]);
@@ -67,6 +68,8 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
   const handleSearch = (e) => {
     const query = e.target.value;
     setQuery(query);
+    setPage(1);
+    setLastPage(null);
   };
 
   const handleThumbChecked = (e, i) => {
@@ -137,45 +140,15 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
   }, [images, croppedSizes]);
 
   return (
-    <div className="smart_image_crop_wrapper">
-      <div className="filter-bar">
-        <button
-          onClick={handleSubmit}
-          disabled={cropsLoading}
-          className="button button-primary"
-          id="preview"
-        >
-          Preview SmartCrops
-        </button>
-        <input
-          type="text"
-          disabled={cropsLoading}
-          onChange={handleSearch}
-          placeholder="Search images"
-        />
-        <button
-          disabled={cropsLoading || page === 1}
-          onClick={() => setPage(page - 1)}
-          className="prev button button-primary"
-        >
-          Prev Page
-        </button>
-        <button
-          disabled={cropsLoading || page === lastPage - 1}
-          onClick={() => setPage(page + 1)}
-          className="next button button-primary"
-        >
-          Next Page
-        </button>
-        <button
-          disabled={cropsLoading}
-          onClick={handleSubmit}
-          className="button"
-          id="save"
-        >
-          Save & <span style={{ color: 'red' }}>Overwrite</span>
-        </button>
-      </div>
+    <div className="smart_image_crop_wrapper wrap">
+      <FilterBar
+        handleSubmit={handleSubmit}
+        handleSearch={handleSearch}
+        setPage={setPage}
+        cropsLoading={cropsLoading}
+        page={page}
+        lastPage={lastPage}
+      />
       <div
         className={
           cropsLoading === true
@@ -206,6 +179,14 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
             />
           ))}
       </div>
+      <FilterBar
+        handleSubmit={handleSubmit}
+        handleSearch={handleSearch}
+        setPage={setPage}
+        cropsLoading={cropsLoading}
+        page={page}
+        lastPage={lastPage}
+      />
     </div>
   );
 };

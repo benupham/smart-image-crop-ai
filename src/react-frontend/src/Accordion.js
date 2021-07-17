@@ -1,14 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 
-const AccordionTitle = styled.h2`
-  &:after: {
-    content: '<';
-    color: black;
-    top: -2px;
-    right: 0px;
-    position: absolute;
-  }
+const AccordionTitle = styled.h3`
+  cursor: pointer;
 `;
 
 const AccordionContent = styled.div`
@@ -20,8 +14,8 @@ const AccordionContent = styled.div`
 
 export const Accordion = (props) => {
   const content = useRef(null);
-  const [height, setHeight] = useState(1);
-  const [direction, setDirection] = useState('down');
+  const [height, setHeight] = useState(0);
+  const [direction, setDirection] = useState('right');
 
   const toggleAccordion = () => {
     console.log(content);
