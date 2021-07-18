@@ -7,3 +7,6 @@ composer.phar
 !/tmp/.gitkeep
 /src/languages/
 node_modules
+*.jpg
+*.png
+
