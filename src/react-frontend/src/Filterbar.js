@@ -46,7 +46,7 @@ const FilterBar = ({
             setPreviewMode(e.target.checked);
           }}
         ></input>
-        <label htmlFor="preview-mode">Preview Only?</label>
+        <label htmlFor="preview-mode">Preview Mode</label>
         <button
           disabled={cropsLoading}
           onClick={handleSubmit}

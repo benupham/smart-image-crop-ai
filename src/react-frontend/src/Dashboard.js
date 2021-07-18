@@ -17,15 +17,30 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
   const requestSmartCrop = async (preview = true, thumb) => {
     const isPreview = preview === true ? 1 : 0;
     const { size, attachment } = thumb;
-
-    const reqUrl = `${urls.proxy}?attachment=${attachment.id}&size=${size}&pre=${isPreview}`;
+    const sizeURI = encodeURIComponent(size);
+    const reqUrl = `${urls.proxy}?attachment=${attachment.id}&size=${sizeURI}&pre=${isPreview}`;
     console.log('reqURL', reqUrl);
     const response = await fetch(reqUrl, {
       headers: new Headers({ 'X-WP-Nonce': nonce }),
     });
     console.log('inner response', response);
+    if (response.ok === false || response.status !== 200) {
+      console.error(response);
+      const errorString = `Error. Status ${response.status}. 
+      Message: ${response.statusText}
+      URL: ${response.url}`;
+      setErrorMessage(errorString);
+      return false;
+    }
     const json = await response.json();
     console.log('json', json);
+
+    if (json.success !== true) {
+      console.log('json error');
+      console.error(json);
+      setErrorMessage(json.body);
+      return false;
+    }
 
     if (json.success === true) {
       thumb.smartcrop = true;
@@ -43,8 +58,6 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
       setThumbs(newThumbs);
       return json.body.smartcrop;
     } else {
-      console.error(json);
-      return false;
     }
   };
 
@@ -179,14 +192,6 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
             />
           ))}
       </div>
-      <FilterBar
-        handleSubmit={handleSubmit}
-        handleSearch={handleSearch}
-        setPage={setPage}
-        cropsLoading={cropsLoading}
-        page={page}
-        lastPage={lastPage}
-      />
     </div>
   );
 };

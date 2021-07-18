@@ -106,8 +106,8 @@ const Settings = ({ nonce, urls, croppedSizes }) => {
               croppedSizes.map((size) => <li key={size}>{size}</li>)}
           </ol>
           <p>
-            Other image sizes are not cropped, only resized, and thus do not
-            need smartcropping.
+            Other image sizes are not cropped only resized, and thus do not need
+            smartcropping.
           </p>
         </div>
       </Accordion>
