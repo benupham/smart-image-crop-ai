@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './dashboard.css';
 import { collateThumbs } from './helper';
 import Thumbnail from './Thumbnail';
-import FilterBar from './FilterBar';
+import FilterBar from './Filterbar';
 
 const Dashboard = ({ urls, nonce, croppedSizes }) => {
   const [images, setImages] = useState([]);
