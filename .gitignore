@@ -9,4 +9,4 @@ composer.phar
 node_modules
 *.jpg
 *.png
-
+.env

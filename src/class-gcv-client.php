@@ -14,7 +14,8 @@ class GCV_Client
         $data = base64_encode($img);
         Tiny_Plugin::write_log('aspect ratio: ' . $aspect_ratio);
         $baseurl = 'https://vision.googleapis.com/v1/images:annotate';
-        $apikey = get_option('smart_image_crop_api_key');
+        $apikey = get_option('smartcrop_api_key');
+        error_log('api key ' . $apikey);
         $body = array(
             'requests' => array(
                 array(
