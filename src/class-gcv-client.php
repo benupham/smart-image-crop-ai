@@ -12,7 +12,7 @@ class GCV_Client
         $is_preview = false;
         $img = file_get_contents($original_file);
         $data = base64_encode($img);
-        Tiny_Plugin::write_log('aspect ratio: ' . $aspect_ratio);
+        // SmartCrop_Plugin::write_log('aspect ratio: ' . $aspect_ratio);
         $baseurl = 'https://vision.googleapis.com/v1/images:annotate';
         $apikey = get_option('smartcrop_api_key');
         error_log('api key ' . $apikey);
@@ -48,23 +48,23 @@ class GCV_Client
             'data_format' => 'body',
         ));
         if (is_wp_error($request)) {
-            Tiny_Plugin::write_log($request);
+            SmartCrop_Plugin::write_log($request);
             return $request;
         }
 
         $response_code = wp_remote_retrieve_response_code($request);
         $response_message = wp_remote_retrieve_response_message($request);
-        Tiny_Plugin::write_log('response code gcv: ' . $response_code);
-        Tiny_Plugin::write_log('response message gcv: ' . $response_message);
+        SmartCrop_Plugin::write_log('response code gcv: ' . $response_code);
+        // SmartCrop_Plugin::write_log('response message gcv: ' . $response_message);
         if (200 != $response_code && !empty($response_message)) {
             return new WP_Error($response_code, $response_message);
         } elseif (200 != $response_code) {
             return new WP_Error($response_code, 'Unknown error occurred');
         } else {
             $response = json_decode(wp_remote_retrieve_body($request));
-            Tiny_Plugin::write_log($response);
+            // SmartCrop_Plugin::write_log($response);
             $vertices = $response->responses[0]->cropHintsAnnotation->cropHints[0]->boundingPoly->vertices;
-            Tiny_Plugin::write_log($vertices);
+            // SmartCrop_Plugin::write_log($vertices);
             return $vertices;
 
         }

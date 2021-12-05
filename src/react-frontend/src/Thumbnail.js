@@ -1,11 +1,11 @@
-import React from 'react';
-import './thumbnail.css';
+import React from "react";
+import "./thumbnail.css";
 
 const Thumbnail = (props) => {
   const thumb = props.thumb;
-  const id = thumb.size + '_' + thumb.attachment.id;
-  const checked = thumb.isChecked ? 'checked' : '';
-  const smartcrop = thumb.smartcrop ? 'smartcrop' : '';
+  const id = thumb.size + "_" + thumb.attachment.id;
+  const checked = thumb.isChecked ? "checked" : "";
+  const smartcrop = thumb.smartcrop ? "smartcrop" : "";
 
   return (
     <div key={id} className={`thumb ${checked} ${smartcrop}`}>
@@ -23,7 +23,7 @@ const Thumbnail = (props) => {
         onChange={(e) => props.handleChange(e, props.index)}
       />
       <label htmlFor={id}>
-        <img src={thumb.url + '?cache=' + thumb.cacheId} alt={id} />
+        <img src={thumb.url + "?cache=" + thumb.cacheId} alt={id} />
       </label>
     </div>
   );

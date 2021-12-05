@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState, useRef } from "react";
+import styled from "styled-components";
 
 const AccordionTitle = styled.h3`
   cursor: pointer;
@@ -15,13 +15,13 @@ const AccordionContent = styled.div`
 export const Accordion = (props) => {
   const content = useRef(null);
   const [height, setHeight] = useState(0);
-  const [direction, setDirection] = useState('right');
+  const [direction, setDirection] = useState("right");
 
   const toggleAccordion = () => {
     console.log(content);
     console.log(height);
     setHeight(height === 0 ? content.current.scrollHeight : 0);
-    setDirection(height === 0 ? 'down' : 'right');
+    setDirection(height === 0 ? "down" : "right");
   };
 
   useEffect(() => {

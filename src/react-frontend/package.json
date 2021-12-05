@@ -11,6 +11,11 @@
   },
   "devDependencies": {
     "archiver": "^3.1.1",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.27.1",
+    "prettier": "^2.5.1",
     "rewire": "^5.0.0",
     "unzipper": "^0.10.11"
   },
@@ -21,7 +26,10 @@
     "postexport": "node ./scripts/verify-export.js",
     "export": "node ./scripts/export.js",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix",
+    "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -31,10 +39,5 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ],
-  "prettier": {
-    "trailingComma": "es5",
-    "tabWidth": 2,
-    "singleQuote": true
-  }
+  ]
 }

@@ -8,7 +8,7 @@
 }
 
 .thumb input[type="checkbox"] {
-  display: none; 
+  display: none;
 }
 
 .thumb label {
@@ -25,18 +25,18 @@
   transform-origin: 50% 50%;
 }
 
-.thumb :checked+label {
+.thumb :checked + label {
   border-color: #ddd;
 }
 
-.thumb :checked+label::after {
+.thumb :checked + label::after {
   content: "✓";
   font-size: 2em;
   transform: scale(1);
   position: absolute;
 }
 
-.thumb :checked+label img {
+.thumb :checked + label img {
   transform: scale(0.9);
   box-shadow: 0 0 5px #333;
   z-index: -1;

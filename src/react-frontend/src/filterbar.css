@@ -16,8 +16,8 @@
   z-index: 10;
 }
 
-
-.pagination, .saving {
+.pagination,
+.saving {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
@@ -26,7 +26,8 @@
   flex: 2 1 auto;
   justify-content: flex-start;
 }
-.pagination .button, .pagination input {
+.pagination .button,
+.pagination input {
   margin-right: 10px;
 }
 .saving {
@@ -37,6 +38,6 @@
   margin-left: 10px;
 }
 
-.filterbar input[type=checkbox] {
+.filterbar input[type="checkbox"] {
   margin: 5px;
 }
