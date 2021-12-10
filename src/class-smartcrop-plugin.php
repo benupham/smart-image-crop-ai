@@ -63,14 +63,12 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
             "plugin_action_links_$plugin",
             $this->get_method('add_plugin_links')
         );
-
-        add_thickbox();
     }
 
     /**
      * Helper function to create a URL to smartcrop a single image.
      *
-     * @param int $id The attachment ID that should be regenerated.
+     * @param int $id The attachment ID that should be smart cropped.
      *
      * @return string The URL to the admin page.
      */
@@ -128,7 +126,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     {
         register_rest_field(
             'attachment',
-            'smartcrop', //New Field Name in JSON RESPONSEs
+            'smartcrop',
             array(
                 'get_callback' => $this->get_method('get_smartcrop_custom_meta'),
                 'update_callback' => null,
@@ -173,12 +171,10 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     public function smartcrop_api_get_settings($request)
     {
         $api_key = get_option('smartcrop_api_key');
-        $suite_id = get_option('smartcrop_suite_id');
         return new WP_REST_RESPONSE(array(
             'success' => true,
             'value' => array(
                 'apiKey' => !$api_key ? '' : $api_key,
-                'suiteId' => !$suite_id ? '' : $suite_id,
             ),
         ), 200);
     }
@@ -189,9 +185,8 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
         $json = $request->get_json_params();
         // store the values in wp_options table
         $updated_api_key = update_option('smartcrop_api_key', $json['apiKey']);
-        $updated_suite_id = update_option('smartcrop_suite_id', $json['suiteId']);
         return new WP_REST_RESPONSE(array(
-            'success' => $updated_api_key && $updated_suite_id,
+            'success' => $updated_api_key,
             'value' => $json,
         ), 200);
     }
@@ -209,7 +204,6 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
 
     public function smartcrop_proxy_permissions_check()
     {
-        return true;
         // Restrict endpoint to only users who have the capability to manage options.
         if (current_user_can('manage_options')) {
             return true;
@@ -237,8 +231,8 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
             ), 500);
         }
 
-        $size_name = $params['size'];
-        $attachment_id = $params['attachment'];
+        $size_name = sanitize_text_field($params['size']);
+        $attachment_id = sanitize_text_field($params['attachment']);
         $is_preview = $params['pre'] == 0 ? false : true;
 
         $metadata = wp_get_attachment_metadata($attachment_id);
@@ -254,10 +248,6 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
         if (is_wp_error($result)) {
             SmartCrop_Plugin::write_log($result);
             return $result;
-            // return new WP_REST_RESPONSE(array(
-            //     'success' => false,
-            //     'error' => 'No size or attachment parameters',
-            // ), 500);
         }
 
         // The wp_update_attachment_metadata call is thrown because the
