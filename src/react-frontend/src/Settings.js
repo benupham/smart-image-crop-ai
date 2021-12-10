@@ -19,14 +19,24 @@ const Settings = ({ nonce, urls, croppedSizes }) => {
         "X-WP-Nonce": nonce
       })
     })
+    setErrorMessage("")
     // check if API key is valid
-    try {
-      setErrorMessage("")
-      setSuccessMessage("Settings saved and validated with API!")
-    } catch (error) {
-      setErrorMessage(error.message)
-      setSuccessMessage("")
-    }
+
+    fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, { method: "POST" })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data)
+        if (!data.error) {
+          return data
+        } else {
+          throw new Error(data.error.message)
+        }
+      })
+      .then(setSuccessMessage("API key saved and validated with Google API!"))
+      .catch((error) => {
+        setErrorMessage(`Key saved, but there was an error: ${error.message}`)
+        setSuccessMessage("")
+      })
     setSaving(false)
   }
 

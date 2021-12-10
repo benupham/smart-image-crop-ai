@@ -1,3 +1,14 @@
+export  const requestSmartCrop = async (preview = true, thumb) => {
+  const isPreview = preview === true ? 1 : 0
+  const { size, attachment } = thumb
+  const sizeURI = encodeURIComponent(size)
+  const reqUrl = `${urls.proxy}?attachment=${attachment.id}&size=${sizeURI}&pre=${isPreview}`
+  console.log("reqURL", reqUrl)
+  const response = await fetch(reqUrl, {
+    headers: new Headers({ "X-WP-Nonce": nonce })
+  })}
+
+
 export const request = async (endpoint, params = {}) => {
   const { urls } = window.smart_image_crop_ajax;
   const connector = urls.proxy.indexOf("?") > -1 ? "&" : "?"; // check for query param in existing WP URL (depends on permalink settings)

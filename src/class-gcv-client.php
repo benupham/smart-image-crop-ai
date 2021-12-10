@@ -9,13 +9,10 @@ class GCV_Client
         $width = $size->dimensions['width'];
         $height = $size->dimensions['height'];
         $aspect_ratio = $width / $height;
-        $is_preview = false;
         $img = file_get_contents($original_file);
         $data = base64_encode($img);
-        // SmartCrop_Plugin::write_log('aspect ratio: ' . $aspect_ratio);
         $baseurl = 'https://vision.googleapis.com/v1/images:annotate';
         $apikey = get_option('smartcrop_api_key');
-        error_log('api key ' . $apikey);
         $body = array(
             'requests' => array(
                 array(
@@ -47,28 +44,28 @@ class GCV_Client
             'method' => 'POST',
             'data_format' => 'body',
         ));
+
         if (is_wp_error($request)) {
-            SmartCrop_Plugin::write_log($request);
             return $request;
         }
 
-        $response_code = wp_remote_retrieve_response_code($request);
-        $response_message = wp_remote_retrieve_response_message($request);
-        SmartCrop_Plugin::write_log('response code gcv: ' . $response_code);
-        // SmartCrop_Plugin::write_log('response message gcv: ' . $response_message);
-        if (200 != $response_code && !empty($response_message)) {
-            return new WP_Error($response_code, $response_message);
-        } elseif (200 != $response_code) {
-            return new WP_Error($response_code, 'Unknown error occurred');
+        $data = json_decode(wp_remote_retrieve_body($request));
+        if (isset($data->error)) {
+            $response_code = $data->error->code;
+            $response_message = $data->error->message;
         } else {
-            $response = json_decode(wp_remote_retrieve_body($request));
-            // SmartCrop_Plugin::write_log($response);
-            $vertices = $response->responses[0]->cropHintsAnnotation->cropHints[0]->boundingPoly->vertices;
-            // SmartCrop_Plugin::write_log($vertices);
-            return $vertices;
-
+            $response_code = wp_remote_retrieve_response_code($request);
+            $response_message = wp_remote_retrieve_response_message($request);
         }
 
-    }
+        if (200 != $response_code && !empty($response_message)) {
+            return new WP_Error($response_code, $response_message, $data);
+        } elseif (200 != $response_code) {
+            return new WP_Error($response_code, "Uknown error", $data);
+        } else {
 
+            $vertices = $data->responses[0]->cropHintsAnnotation->cropHints[0]->boundingPoly->vertices;
+            return $vertices;
+        }
+    }
 }

@@ -170,7 +170,6 @@ class SmartCrop_Image
             $vertices = $gcv_client->get_crop_hint($this->original_filename, $size);
 
             if (is_wp_error($vertices)) {
-                error_log(print_r($vertices));
                 return $vertices;
             }
 

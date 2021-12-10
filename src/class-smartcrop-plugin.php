@@ -30,14 +30,15 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
 
         add_filter('attachment_fields_to_edit', array($this, 'add_smartcrop_button_to_edit_media_modal_fields_area'), 99, 2);
 
-        load_plugin_textdomain(self::NAME, false,
+        load_plugin_textdomain(
+            self::NAME,
+            false,
             dirname(plugin_basename(__FILE__)) . '/languages'
         );
 
         add_action('rest_api_init', $this->get_method('add_smartcrop_meta_to_media_api'));
 
         add_action('rest_api_init', $this->get_method('add_smartcrop_api_routes'));
-
     }
 
     public function admin_init()
@@ -49,7 +50,8 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
         // Add a regenerate link to actions list in the media list view.
         add_filter('media_row_actions', array($this, 'add_smartcrop_link_to_media_list_view'), 10, 2);
 
-        add_action('admin_enqueue_scripts',
+        add_action(
+            'admin_enqueue_scripts',
             $this->get_method('enqueue_scripts')
         );
 
@@ -57,7 +59,8 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
             dirname(dirname(__FILE__)) . '/smart-crop-image-ai.php'
         );
 
-        add_filter("plugin_action_links_$plugin",
+        add_filter(
+            "plugin_action_links_$plugin",
             $this->get_method('add_plugin_links')
         );
 
@@ -249,8 +252,12 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
         $result = $smartcrop_image->get_smartcrop($size_name, $is_preview);
 
         if (is_wp_error($result)) {
-            SmartCrop_Plugin::write_log($result->get_error_message());
+            SmartCrop_Plugin::write_log($result);
             return $result;
+            // return new WP_REST_RESPONSE(array(
+            //     'success' => false,
+            //     'error' => 'No size or attachment parameters',
+            // ), 500);
         }
 
         // The wp_update_attachment_metadata call is thrown because the
@@ -267,7 +274,6 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
                 'smartcrop' => $result,
             ),
         ), 200);
-
     }
 
     public function enqueue_scripts($hook)
@@ -307,7 +313,6 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
             'suiteId' => get_option('smart_image_crop_suite_id'),
             'imageSizes' => wp_get_registered_image_subsizes(),
         ));
-
     }
 
     public static function write_log($log)
