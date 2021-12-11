@@ -9,6 +9,7 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
   const [thumbs, setThumbs] = useState([])
   const [query, setQuery] = useState("")
   const [page, setPage] = useState(1)
+  const [filter, setCropFilter] = useState(1)
   const [errorMessage, setErrorMessage] = useState("")
   const [pageLoading, setPageLoading] = useState(true)
   const [cropsLoading, setCropsLoading] = useState(false)
@@ -146,6 +147,7 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
       <FilterBar
         handleSubmit={handleSubmit}
         handleSearch={debouncedSearch}
+        handleCropFilter={setCropFilter}
         setPage={setPage}
         cropsLoading={cropsLoading}
         page={page}

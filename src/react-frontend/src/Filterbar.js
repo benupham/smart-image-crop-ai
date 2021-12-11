@@ -26,6 +26,12 @@ const FilterBar = ({ handleSearch, handleSubmit, setPage, cropsLoading, page, la
           Next Page
         </button>
       </div>
+      <div className="filter-cropped">
+        <select name="filter-cropped" id="filter-cropped">
+          <option value="uncropped">Unsmartcropped only</option>
+          <option value="all">All images</option>
+        </select>
+      </div>
       <div className="saving">
         <input
           type="checkbox"

@@ -68,18 +68,6 @@ class SmartCrop_Image
         }
     }
 
-    private function duplicate_check($filenames, $file, $size_name)
-    {
-        if (isset($filenames[$file])) {
-            if ($filenames[$file] != $size_name) {
-                $this->sizes[$size_name]->mark_duplicate($filenames[$file]);
-            }
-        } else {
-            $filenames[$file] = $size_name;
-        }
-        return $filenames;
-    }
-
     public function get_id()
     {
         return $this->id;
@@ -118,15 +106,12 @@ class SmartCrop_Image
             return true;
         }
         return false;
-
     }
 
     public function get_smartcrop($size_name, $is_preview)
     {
 
         $size = $this->get_image_size($size_name);
-
-        $smartcrop_meta = get_post_meta($this->id, 'smartcrop', true);
 
         $gcv_credit = 0;
 
@@ -138,33 +123,28 @@ class SmartCrop_Image
         // If there's already a generated preview image, return that
         if ($this->check_for_preview_image($size_name)) {
             SmartCrop_Plugin::write_log('already a preview image');
-            error_log('already a preview image');
             if ($is_preview) {
 
                 $response['image_url'] = SMART_PREVIEWS_URL . '/' . $size->name_of_file;
-
             } else {
 
                 $this->replace_size_with_preview($size_name);
-                $this->update_smartcrop_meta($size_name, $smartcrop_meta[$size_name]['vertices'], $is_preview);
-                SmartCrop_Plugin::write_log($size->url);
-                error_log("The URL of the size: {$size->url}");
+                $this->update_smartcrop_meta($size_name);
                 $response['image_url'] = $size->url;
-
             }
 
             return $response;
-
         }
 
-        // If we already have smartcrop meta, use that to generate preview
-        if ($smartcrop_meta && isset($smartcrop_meta[$size_name]) && isset($smartcrop_meta[$size_name]['vertices'])) {
-            SmartCrop_Plugin::write_log('already vertices meta');
-            error_log('already vertices meta');
-            $vertices = $smartcrop_meta[$size_name]['vertices'];
+        // If there's transient cache data for the size, get that
+        $transient = 'smartcrop_' . $this->id . '_' . $size_name;
+        $vertices = null;
 
+        if (false !== ($value = get_transient($transient))) {
+            SmartCrop_Plugin::write_log('transient data');
+            $vertices = $value;
         } else {
-            // We have no existing preview and no existing vertices meta, so go to Google
+            // We have no existing preview and no existing vertices cache, so go to Google
             error_log('going to Google');
             $gcv_client = new GCV_Client();
             $vertices = $gcv_client->get_crop_hint($this->original_filename, $size);
@@ -173,8 +153,8 @@ class SmartCrop_Image
                 return $vertices;
             }
 
+            set_transient($transient, $vertices, MONTH_IN_SECONDS);
             $response['gcv_api'] = 1;
-
         }
 
         $crop_data = $this->create_smart_crop_image($this->original_filename, $vertices, $size_name, $is_preview);
@@ -188,7 +168,6 @@ class SmartCrop_Image
         $response['image_url'] = $crop_data;
 
         return $response;
-
     }
 
     private function create_smart_crop_image($original_file, $crop_vertices, $size_name, $is_preview = true)
@@ -222,13 +201,15 @@ class SmartCrop_Image
             return $cropped_image_data;
         }
 
-        $this->update_smartcrop_meta($size_name, $crop_vertices, $is_preview);
+        if (false === $is_preview) {
+            $this->update_smartcrop_meta($size_name);
+        }
+
 
         $image_url = $is_preview ? plugins_url($size->name_of_file, $cropped_file_path)
-        : $size->url;
+            : $size->url;
 
         return $image_url;
-
     }
 
     public function replace_size_with_preview($size_name)
@@ -256,34 +237,24 @@ class SmartCrop_Image
             SmartCrop_Plugin::write_log('deleted ' . $preview_file_path);
 
             return true;
-
         }
 
         return false;
-
     }
 
-    public function update_smartcrop_meta($size_name, $vertices, $is_preview)
+    public function update_smartcrop_meta($size_name)
     {
-
-        $metadata = array(
-            'is_preview' => $is_preview,
-            'vertices' => $vertices,
-            'time' => time(),
-        );
 
         $smartcrop_meta = get_post_meta($this->id, 'smartcrop', true);
 
         if (!is_array($smartcrop_meta)) {
 
             $smartcrop_meta = array(
-                $size_name => $metadata,
+                $size_name => time(),
             );
-
         } else {
 
-            $smartcrop_meta[$size_name] = $metadata;
-
+            $smartcrop_meta[$size_name] = time();
         }
 
         $result = update_post_meta($this->id, 'smartcrop', $smartcrop_meta);
@@ -292,33 +263,33 @@ class SmartCrop_Image
         This action is being used by WPML:
         https://gist.github.com/srdjan-jcc/5c47685cda4da471dff5757ba3ce5ab1
          */
-        do_action('update_smartcrop_meta', $this->id, 'smartcrop', $smartcrop_meta);
+        do_action('update_smartcrop_meta', $this->id, 'smartcrop', $this->wp_metadata);
     }
 
-    public function get_image_sizes()
-    {
-        $original = isset($this->sizes[self::ORIGINAL])
-        ? array(
-            self::ORIGINAL => $this->sizes[self::ORIGINAL],
-        )
-        : array();
-        $compressed = array();
-        $uncompressed = array();
-        foreach ($this->sizes as $size_name => $size) {
-            if (self::is_original($size_name)) {
-                continue;
-            }
+    // public function get_image_sizes()
+    // {
+    //     $original = isset($this->sizes[self::ORIGINAL])
+    //         ? array(
+    //             self::ORIGINAL => $this->sizes[self::ORIGINAL],
+    //         )
+    //         : array();
+    //     $compressed = array();
+    //     $uncompressed = array();
+    //     foreach ($this->sizes as $size_name => $size) {
+    //         if (self::is_original($size_name)) {
+    //             continue;
+    //         }
 
-            if ($size->has_been_compressed()) {
-                $compressed[$size_name] = $size;
-            } else {
-                $uncompressed[$size_name] = $size;
-            }
-        }
-        ksort($compressed);
-        ksort($uncompressed);
-        return $original + $compressed + $uncompressed;
-    }
+    //         if ($size->has_been_compressed()) {
+    //             $compressed[$size_name] = $size;
+    //         } else {
+    //             $uncompressed[$size_name] = $size;
+    //         }
+    //     }
+    //     ksort($compressed);
+    //     ksort($uncompressed);
+    //     return $original + $compressed + $uncompressed;
+    // }
 
     public function get_image_size($size = self::ORIGINAL, $create = false)
     {
@@ -335,5 +306,4 @@ class SmartCrop_Image
     {
         return self::ORIGINAL === $size;
     }
-
 }
