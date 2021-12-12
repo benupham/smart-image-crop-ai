@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useLayoutEffect } from "react"
 import styled from "styled-components"
 
-const AccordionTitle = styled.h3`
+const AccordionTitle = styled.span`
   cursor: pointer;
 `
 
@@ -24,12 +24,12 @@ export const Accordion = (props) => {
 
   return (
     <>
-      <AccordionTitle>
-        <span onClick={toggleAccordion}>
+      <h3>
+        <AccordionTitle onClick={toggleAccordion}>
           {props.title}
           <i className={`arrow-accordion ${direction}`}></i>
-        </span>
-      </AccordionTitle>
+        </AccordionTitle>
+      </h3>
       <AccordionContent height={height} ref={content}>
         {props.children}
       </AccordionContent>

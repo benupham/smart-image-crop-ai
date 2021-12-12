@@ -10,7 +10,7 @@ export const checkApiKey = async (apiKey) =>
       }
     })
 
-export const requestSmartCrop = async (preview = true, thumb, setErrorMessage, urls, nonce) => {
+export const requestSmartCrop = async (preview = true, thumb, setNotice, urls, nonce) => {
   const isPreview = preview === true ? 1 : 0
   const { size, attachment } = thumb
   const sizeURI = encodeURIComponent(size)
@@ -24,7 +24,7 @@ export const requestSmartCrop = async (preview = true, thumb, setErrorMessage, u
     const error = await response.json()
     console.log("Error", error)
     const errorString = `Error: ${error.code}. Message: ${error.message}`
-    setErrorMessage(errorString)
+    setNotice([errorString, "error"])
     return false
   }
 
@@ -32,12 +32,11 @@ export const requestSmartCrop = async (preview = true, thumb, setErrorMessage, u
 
   if (json.success !== true) {
     console.log("JSON parse error", json)
-    setErrorMessage(json.body)
+    setNotice([json.body, "error"])
     return false
   }
 
   if (json.success === true) {
-    setErrorMessage("")
     thumb.smartcrop = true
     if (preview === true) {
       thumb.url = json.body.smartcrop.image_url

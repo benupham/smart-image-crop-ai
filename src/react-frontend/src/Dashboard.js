@@ -6,7 +6,7 @@ import FilterBar from "./Filterbar"
 import lodash from "lodash"
 import { requestSmartCrop } from "./api"
 
-const Dashboard = ({ urls, nonce, croppedSizes }) => {
+const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
   const [thumbs, setThumbs] = useState([])
   const [query, setQuery] = useState("")
   const [page, setPage] = useState(1)
@@ -23,7 +23,7 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
 
     const reqCrops = thumbs.filter((thumb) => thumb.isChecked === true)
     const promisesPromises = reqCrops.map(async (thumb) => {
-      const newThumb = await requestSmartCrop(preview, thumb, setErrorMessage, urls, nonce)
+      const newThumb = await requestSmartCrop(preview, thumb, setNotice, urls, nonce)
       const newThumbs = thumbs.map((t) => (newThumb.file === t.file ? (t = newThumb) : t))
       setThumbs(newThumbs)
     })
