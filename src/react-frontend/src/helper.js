@@ -1,16 +1,14 @@
 import { isInteger } from "lodash"
 
 /**
- *
+ * Filter and sort WP image data from media API
  * @param {json} imagesJson All images returned from the API
  * @param {json} croppedSizes The hard-cropped image sizes in WP
  * @param {boolean} filterCropped Whether to filter out already smartcropped images
- * @returns
+ * @returns {array}
  */
 export const collateThumbs = (imagesJson, croppedSizes, filterCropped) => {
   const allThumbs = imagesJson.reduce((allacc, image) => {
-    console.log(image)
-
     const thumbs = Object.entries(image.media_details.sizes).reduce((acc, [size, details]) => {
       if (
         filterCropped &&
@@ -49,6 +47,11 @@ export const collateThumbs = (imagesJson, croppedSizes, filterCropped) => {
   return allThumbs
 }
 
+/**
+ * Filter WP image sizes for those that are hard-cropped.
+ * @param {object} sizes
+ * @returns {array}
+ */
 export const getCroppedSizes = (sizes) => {
   const croppedSizes = Object.entries(sizes).reduce((acc, [size, details]) => {
     if (details.crop !== false) {

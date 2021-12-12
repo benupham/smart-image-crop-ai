@@ -1,6 +1,5 @@
 # TODOS
-1. Cache previews as transients instead of adding to media meta
-2. Add uninstall 
+1. Add uninstall 
 3. Add activate/deactivate hooks
 4. Check plugin header
 5. Check license. Should be "GPLv2 or later"

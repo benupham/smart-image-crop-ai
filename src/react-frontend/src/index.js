@@ -9,6 +9,7 @@ const croppedSizes = getCroppedSizes(imageSizes)
 
 const dashboardContainer = document.getElementById("smart_image_crop_dashboard")
 const settingsContainer = document.getElementById("smart_image_crop_settings")
+
 if (settingsContainer && dashboardContainer) {
   ReactDOM.render(
     <Settings nonce={nonce} urls={urls} croppedSizes={croppedSizes} />,

@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: Smart Crop Image AI
- * Description: Use the power of machine learning to crop your WordPressd images perfectly.
+ * Description: Use the power of machine learning to crop your WordPress images perfectly.
  * Version: 0.9
  * Author: Ben Upham
  * Text Domain: smartcrop
@@ -25,17 +25,3 @@ if (!defined('SMART_PREVIEWS_PATH')) {
 }
 
 $smartcrop_plugin = new SmartCrop_Plugin();
-
-// function delete_smartcrop_metadata()
-// {
-//     $query = new WP_Query(array(
-//         'post_type' => 'attachment',
-//         'posts_per_page' => -1,
-//     ));
-
-//     foreach ($query->posts as $post) {
-//         delete_post_meta($post->ID, 'smartcrop');
-//     }
-// }
-
-// delete_smartcrop_metadata();

@@ -122,7 +122,6 @@ class SmartCrop_Image
 
         // If there's already a generated preview image, return that
         if ($this->check_for_preview_image($size_name)) {
-            SmartCrop_Plugin::write_log('already a preview image');
             if ($is_preview) {
 
                 $response['image_url'] = SMART_PREVIEWS_URL . '/' . $size->name_of_file;
@@ -141,11 +140,9 @@ class SmartCrop_Image
         $vertices = null;
 
         if (false !== ($value = get_transient($transient))) {
-            SmartCrop_Plugin::write_log('transient data');
             $vertices = $value;
         } else {
             // We have no existing preview and no existing vertices cache, so go to Google
-            error_log('going to Google');
             $gcv_client = new GCV_Client();
             $vertices = $gcv_client->get_crop_hint($this->original_filename, $size);
 
@@ -160,8 +157,6 @@ class SmartCrop_Image
         $crop_data = $this->create_smart_crop_image($this->original_filename, $vertices, $size_name, $is_preview);
 
         if (is_wp_error($crop_data)) {
-            SmartCrop_Plugin::write_log($crop_data);
-            error_log($crop_data);
             return $crop_data;
         }
 
@@ -177,12 +172,9 @@ class SmartCrop_Image
 
         $cropped_file_path = $is_preview ? SMART_PREVIEWS_PATH . '/' . $size->name_of_file : $size->filename;
 
-        SmartCrop_Plugin::write_log('cropped image file: ' . $cropped_file_path);
-
         $image_editor = wp_get_image_editor($original_file);
 
         if (is_wp_error($image_editor)) {
-            SmartCrop_Plugin::write_log($image_editor->get_error_message());
             return $image_editor;
         }
 
@@ -197,7 +189,6 @@ class SmartCrop_Image
         $cropped_image_data = $image_editor->save($cropped_file_path);
 
         if (is_wp_error($cropped_image_data)) {
-            SmartCrop_Plugin::write_log($cropped_image_data->get_error_message());
             return $cropped_image_data;
         }
 
@@ -220,21 +211,16 @@ class SmartCrop_Image
         $preview_file = $size->name_of_file;
         $preview_file_path = SMART_PREVIEWS_PATH . '/' . $preview_file;
 
-        // SmartCrop_Plugin::write_log('preview file path: ' . $preview_file_path);
-        // SmartCrop_Plugin::write_log('original file path: ' . $original_file_path);
-
         if (file_exists($preview_file_path)) {
 
             $smartcropped_image = file_get_contents($preview_file_path);
             $result = file_put_contents($original_file_path, $smartcropped_image);
 
             if (is_wp_error($result) || $result == false) {
-                SmartCrop_Plugin::write_log($result->get_error_message());
                 return $result;
             }
 
             unlink($preview_file_path);
-            SmartCrop_Plugin::write_log('deleted ' . $preview_file_path);
 
             return true;
         }
