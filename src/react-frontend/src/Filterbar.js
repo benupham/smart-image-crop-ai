@@ -52,7 +52,6 @@ const FilterBar = ({
           id="preview-mode"
           name="preview-mode"
           onChange={(e) => {
-            console.log(e.target.checked)
             setPreviewMode(e.target.checked)
           }}></input>
         <label htmlFor="preview-mode">Preview Mode</label>

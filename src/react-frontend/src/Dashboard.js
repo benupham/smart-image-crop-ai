@@ -52,15 +52,16 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
     const newThumbs = thumbs.map((thumb, index) =>
       index === i ? { ...thumb, isChecked: value } : thumb
     )
-    console.log(newThumbs[i].isChecked)
     setThumbs(newThumbs)
   }
 
   useEffect(() => {
     const requestImages = async (attachmentId) => {
       if (!window.smart_image_crop_ajax || !window.smart_image_crop_ajax.urls) {
-        console.error("Can't find WP API endpoints.")
-        setErrorMessage("Can't find WordPress API endpoints.")
+        console.error("Can't find WordPress API endpoints.")
+        setErrorMessage(
+          "Can't find WordPress REST API endpoints. Is the API restricted or turned off?"
+        )
       }
       const mediaApi = window.smart_image_crop_ajax.urls.media
       const nonce = window.smart_image_crop_ajax.nonce

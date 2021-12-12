@@ -3,8 +3,6 @@
 class SmartCrop_Settings extends SmartCrop_WP_Base
 {
 
-    private $notices;
-
     public function __construct()
     {
         parent::__construct();
@@ -20,7 +18,6 @@ class SmartCrop_Settings extends SmartCrop_WP_Base
             'smartcrop-settings',
             array($this, 'smartcrop_settings_do_page')
         );
-
     }
 
     public function add_options_to_page()
@@ -30,10 +27,9 @@ class SmartCrop_Settings extends SmartCrop_WP_Base
 
     public function smartcrop_settings_do_page()
     {
-        ?>
-		<div id="smart_image_crop_settings"></div>
-		<div id="smart_image_crop_dashboard"></div>
-		<?php
-}
-
+?>
+        <div id="smart_image_crop_settings"></div>
+        <div id="smart_image_crop_dashboard"></div>
+<?php
+    }
 }

@@ -14,7 +14,6 @@ require dirname(__FILE__) . '/src/class-smartcrop-image-size.php';
 require dirname(__FILE__) . '/src/class-smartcrop-image.php';
 require dirname(__FILE__) . '/src/class-smartcrop-settings.php';
 require dirname(__FILE__) . '/src/class-smartcrop-plugin.php';
-
 require dirname(__FILE__) . '/src/class-gcv-client.php';
 
 if (!defined('SMART_PREVIEWS_URL')) {

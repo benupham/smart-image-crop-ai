@@ -2,13 +2,10 @@
 
 class SmartCrop_Plugin extends SmartCrop_WP_Base
 {
-    const VERSION = '0.1';
+    const VERSION = '0.9';
     const DATETIME_FORMAT = 'Y-m-d G:i:s';
 
-    private static $version;
-
     private $settings;
-    private $twig;
 
     public static function version()
     {
@@ -25,8 +22,8 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
 
     public function init()
     {
-        // Just for the purposes of develoment/testing
-        add_image_size('two by one', 400, 200, array('right', 'bottom'));
+        // Deliberately off-center crop for the purposes of develoment/testing
+        // add_image_size('two by one', 400, 200, array('right', 'bottom'));
 
         add_filter('attachment_fields_to_edit', array($this, 'add_smartcrop_button_to_edit_media_modal_fields_area'), 99, 2);
 
@@ -301,7 +298,6 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
                 'media' => rest_url('wp/v2/media'),
             ),
             'nonce' => wp_create_nonce('wp_rest'),
-            'suiteId' => get_option('smart_image_crop_suite_id'),
             'imageSizes' => wp_get_registered_image_subsizes(),
         ));
     }

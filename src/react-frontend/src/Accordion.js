@@ -24,9 +24,11 @@ export const Accordion = (props) => {
 
   return (
     <>
-      <AccordionTitle onClick={toggleAccordion}>
-        {props.title}
-        <i className={`arrow-accordion ${direction}`}></i>
+      <AccordionTitle>
+        <span onClick={toggleAccordion}>
+          {props.title}
+          <i className={`arrow-accordion ${direction}`}></i>
+        </span>
       </AccordionTitle>
       <AccordionContent height={height} ref={content}>
         {props.children}

@@ -16,7 +16,6 @@ export const collateThumbs = (imagesJson, croppedSizes, filterCropped) => {
         Object.prototype.hasOwnProperty.call(image.smartcrop, size) &&
         isInteger(image.smartcrop[size])
       ) {
-        console.log("already cropped")
         return acc
       }
 

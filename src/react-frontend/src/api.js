@@ -2,7 +2,7 @@ export const checkApiKey = async (apiKey) =>
   fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, { method: "POST" })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data)
+      console.log("Google API response", data)
       if (!data.error) {
         return data
       } else {
@@ -15,7 +15,6 @@ export const requestSmartCrop = async (preview = true, thumb, setErrorMessage, u
   const { size, attachment } = thumb
   const sizeURI = encodeURIComponent(size)
   const reqUrl = `${urls.proxy}?attachment=${attachment.id}&size=${sizeURI}&pre=${isPreview}`
-  console.log("reqURL", reqUrl)
 
   const response = await fetch(reqUrl, {
     headers: new Headers({ "X-WP-Nonce": nonce })
@@ -23,7 +22,7 @@ export const requestSmartCrop = async (preview = true, thumb, setErrorMessage, u
 
   if (response.ok === false || response.status !== 200) {
     const error = await response.json()
-    console.log(error)
+    console.log("Error", error)
     const errorString = `Error: ${error.code}. Message: ${error.message}`
     setErrorMessage(errorString)
     return false
@@ -32,7 +31,7 @@ export const requestSmartCrop = async (preview = true, thumb, setErrorMessage, u
   const json = await response.json()
 
   if (json.success !== true) {
-    console.log("json error", json)
+    console.log("JSON parse error", json)
     setErrorMessage(json.body)
     return false
   }
