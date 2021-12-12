@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { Accordion } from "./Accordion"
+import { checkApiKey } from "./api"
 
 const Settings = ({ nonce, urls, croppedSizes }) => {
   const [apiKey, setApiKey] = useState("")
@@ -7,7 +8,7 @@ const Settings = ({ nonce, urls, croppedSizes }) => {
   const [successMessage, setSuccessMessage] = useState("")
   const [isSaving, setSaving] = useState(false)
   const [isGetting, setGetting] = useState(true)
-  const updateApiKey = (event) => setApiKey(event.target.value)
+
   const updateSettings = async (event) => {
     event.preventDefault()
     setSaving(true)
@@ -21,47 +22,43 @@ const Settings = ({ nonce, urls, croppedSizes }) => {
     })
     setErrorMessage("")
     // check if API key is valid
+    try {
+      const data = await checkApiKey(apiKey)
+      setSuccessMessage("API key saved and validated with Google API!")
+    } catch (error) {
+      if (error.message == "The request is missing a valid API key.") {
+        error.message = "API key not valid. Please check your Google Cloud Vision account."
+      }
+      setErrorMessage(`Key saved, but there was an error: ${error.message}`)
+      setSuccessMessage("")
+    }
 
-    fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, { method: "POST" })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data)
-        if (!data.error) {
-          return data
-        } else {
-          throw new Error(data.error.message)
-        }
-      })
-      .then(setSuccessMessage("API key saved and validated with Google API!"))
-      .catch((error) => {
-        setErrorMessage(`Key saved, but there was an error: ${error.message}`)
-        setSuccessMessage("")
-      })
     setSaving(false)
+  }
+
+  const getSettings = async () => {
+    let json = null
+    let elapsed = false
+    setGetting(true)
+    // display loading for a minimum amount of time to prevent flashing
+    setTimeout(() => {
+      elapsed = true
+      if (json) {
+        setGetting(false)
+      }
+    }, 300)
+    const response = await fetch(urls.settings, {
+      headers: new Headers({ "X-WP-Nonce": nonce })
+    })
+    json = await response.json()
+    setApiKey(json.value.apiKey)
+    if (elapsed) {
+      setGetting(false)
+    }
   }
 
   // get the key on settings page load
   useEffect(() => {
-    const getSettings = async () => {
-      let json = null
-      let elapsed = false
-      setGetting(true)
-      // display loading for a minimum amount of time to prevent flashing
-      setTimeout(() => {
-        elapsed = true
-        if (json) {
-          setGetting(false)
-        }
-      }, 300)
-      const response = await fetch(urls.settings, {
-        headers: new Headers({ "X-WP-Nonce": nonce })
-      })
-      json = await response.json()
-      setApiKey(json.value.apiKey)
-      if (elapsed) {
-        setGetting(false)
-      }
-    }
     getSettings()
   }, [nonce, urls])
 
@@ -73,7 +70,7 @@ const Settings = ({ nonce, urls, croppedSizes }) => {
           <p>
             <label>
               Google Cloud Vision API Key:{" "}
-              <input type="text" value={apiKey} onChange={updateApiKey} />
+              <input type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
             </label>
           </p>
           {isGetting && <p>Loading...</p>}
@@ -107,7 +104,10 @@ const Settings = ({ nonce, urls, croppedSizes }) => {
           <h2>Cropped Image Sizes</h2>
           <p>Only these image sizes are eligible for smart cropping:</p>
           <ol>{croppedSizes && croppedSizes.map((size) => <li key={size}>{size}</li>)}</ol>
-          <p>Other image sizes are not cropped only resized, and thus do not need smartcropping.</p>
+          <p>
+            Other image sizes are not cropped, they are only resized, and thus do not need
+            smartcropping.
+          </p>
         </div>
       </Accordion>
     </div>

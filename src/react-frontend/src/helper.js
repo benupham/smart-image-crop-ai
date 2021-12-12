@@ -1,6 +1,27 @@
-export const collateThumbs = (imagesJson, croppedSizes) => {
+import { isInteger } from "lodash"
+
+/**
+ *
+ * @param {json} imagesJson All images returned from the API
+ * @param {json} croppedSizes The hard-cropped image sizes in WP
+ * @param {boolean} filterCropped Whether to filter out already smartcropped images
+ * @returns
+ */
+export const collateThumbs = (imagesJson, croppedSizes, filterCropped) => {
   const allThumbs = imagesJson.reduce((allacc, image) => {
+    console.log(image)
+
     const thumbs = Object.entries(image.media_details.sizes).reduce((acc, [size, details]) => {
+      if (
+        filterCropped &&
+        image.smartcrop &&
+        Object.prototype.hasOwnProperty.call(image.smartcrop, size) &&
+        isInteger(image.smartcrop[size])
+      ) {
+        console.log("already cropped")
+        return acc
+      }
+
       if (croppedSizes.includes(size)) {
         const thumb = details
         thumb.size = size

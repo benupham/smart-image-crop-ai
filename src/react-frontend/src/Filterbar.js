@@ -1,7 +1,15 @@
 import React, { useState } from "react"
 import "./filterbar.css"
 
-const FilterBar = ({ handleSearch, handleSubmit, setPage, cropsLoading, page, lastPage }) => {
+const FilterBar = ({
+  handleSearch,
+  handleSubmit,
+  handleCropFilter,
+  setPage,
+  cropsLoading,
+  page,
+  lastPage
+}) => {
   const [previewMode, setPreviewMode] = useState(true)
 
   return (
@@ -25,12 +33,17 @@ const FilterBar = ({ handleSearch, handleSubmit, setPage, cropsLoading, page, la
           className="next button button-primary">
           Next Page
         </button>
-      </div>
-      <div className="filter-cropped">
-        <select name="filter-cropped" id="filter-cropped">
-          <option value="uncropped">Unsmartcropped only</option>
-          <option value="all">All images</option>
-        </select>
+        <div className="filter-cropped">
+          <select
+            name="filter-cropped"
+            id="filter-cropped"
+            onChange={(e) => {
+              handleCropFilter(e.target.value == "all" ? false : true)
+            }}>
+            <option value="uncropped">Unsmartcropped only</option>
+            <option value="all">All images</option>
+          </select>
+        </div>
       </div>
       <div className="saving">
         <input

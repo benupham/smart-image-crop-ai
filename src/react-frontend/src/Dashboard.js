@@ -4,60 +4,17 @@ import { collateThumbs } from "./helper"
 import Thumbnail from "./Thumbnail"
 import FilterBar from "./Filterbar"
 import lodash from "lodash"
+import { requestSmartCrop } from "./api"
 
 const Dashboard = ({ urls, nonce, croppedSizes }) => {
   const [thumbs, setThumbs] = useState([])
   const [query, setQuery] = useState("")
   const [page, setPage] = useState(1)
-  const [filter, setCropFilter] = useState(1)
+  const [filterCropped, setCropFilter] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
   const [pageLoading, setPageLoading] = useState(true)
   const [cropsLoading, setCropsLoading] = useState(false)
   const [lastPage, setLastPage] = useState(null)
-
-  const requestSmartCrop = async (preview = true, thumb) => {
-    const isPreview = preview === true ? 1 : 0
-    const { size, attachment } = thumb
-    const sizeURI = encodeURIComponent(size)
-    const reqUrl = `${urls.proxy}?attachment=${attachment.id}&size=${sizeURI}&pre=${isPreview}`
-    console.log("reqURL", reqUrl)
-
-    const response = await fetch(reqUrl, {
-      headers: new Headers({ "X-WP-Nonce": nonce })
-    })
-
-    if (response.ok === false || response.status !== 200) {
-      const error = await response.json()
-      console.log(error)
-      const errorString = `Error: ${error.code}. Message: ${error.message}`
-      setErrorMessage(errorString)
-      return false
-    }
-    const json = await response.json()
-    console.log("json", json)
-
-    if (json.success !== true) {
-      console.log("json error", json)
-      setErrorMessage(json.body)
-      return false
-    }
-
-    if (json.success === true) {
-      thumb.smartcrop = true
-      if (preview === true) {
-        thumb.url = json.body.smartcrop.image_url
-      } else {
-        thumb.isChecked = false
-        thumb.cacheId = Date.now()
-        thumb.url = thumb.source_url
-        thumb.previewFile = ""
-      }
-      const newThumbs = thumbs.map((t) => (thumb.file === t.file ? (t = thumb) : t))
-      setThumbs(newThumbs)
-      setErrorMessage("")
-      return json.body.smartcrop
-    }
-  }
 
   const handleSubmit = async (e) => {
     setCropsLoading(true)
@@ -66,10 +23,11 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
 
     const reqCrops = thumbs.filter((thumb) => thumb.isChecked === true)
     const promisesPromises = reqCrops.map(async (thumb) => {
-      const response = await requestSmartCrop(preview, thumb)
-      return response
+      const newThumb = await requestSmartCrop(preview, thumb, setErrorMessage, urls, nonce)
+      const newThumbs = thumbs.map((t) => (newThumb.file === t.file ? (t = newThumb) : t))
+      setThumbs(newThumbs)
     })
-    const previews = await Promise.all(promisesPromises)
+    await Promise.all(promisesPromises)
 
     setCropsLoading(false)
   }
@@ -79,6 +37,12 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
     setQuery(query)
     setPage(1)
     setLastPage(null)
+  }
+
+  const handleCropFilter = (filterCropped) => {
+    setCropsLoading(true)
+    setCropFilter(filterCropped)
+    setCropsLoading(false)
   }
 
   const debouncedSearch = useMemo(() => lodash.debounce(handleSearch, 200), [])
@@ -131,7 +95,7 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
       }
 
       setErrorMessage("")
-      const thumbs = collateThumbs(data, croppedSizes)
+      const thumbs = collateThumbs(data, croppedSizes, filterCropped)
       setThumbs(thumbs)
     }
 
@@ -140,14 +104,14 @@ const Dashboard = ({ urls, nonce, croppedSizes }) => {
     const id = urlParams.get("attachmentId") ? urlParams.get("attachmentId") : ""
 
     requestImages(id)
-  }, [query, page])
+  }, [query, page, filterCropped])
 
   return (
     <div className="smart_image_crop_wrapper wrap">
       <FilterBar
         handleSubmit={handleSubmit}
         handleSearch={debouncedSearch}
-        handleCropFilter={setCropFilter}
+        handleCropFilter={handleCropFilter}
         setPage={setPage}
         cropsLoading={cropsLoading}
         page={page}
