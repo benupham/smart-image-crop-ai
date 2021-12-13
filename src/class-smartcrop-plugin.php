@@ -37,6 +37,8 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
 
         add_action('rest_api_init', $this->get_method('add_smartcrop_api_routes'));
 
+        add_filter('wp_generate_attachment_metadata', $this->get_method('delete_smartcrop_meta'), 10, 2);
+
         register_uninstall_hook(__FILE__, 'uninstall');
     }
 
@@ -143,6 +145,15 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
             return null;
         }
         return $the_meta;
+    }
+
+    public function delete_smartcrop_meta($metadata, $attachment_id)
+    {
+        if (is_array(get_post_meta($attachment_id, 'smartcrop'))) {
+            update_post_meta($attachment_id, 'smartcrop', null);
+        }
+
+        return $metadata;
     }
 
     public function add_smartcrop_api_routes()
