@@ -44,6 +44,9 @@ archive.glob("../../src/*.php")
 archive.file(path.resolve(__dirname, "../../../smart-crop-image-ai.php"), {
   name: "smart-crop-image-ai.php"
 })
+archive.file(path.resolve(__dirname, "../../../uninstall.php"), {
+  name: "uninstall.php"
+})
 archive.file(path.resolve(__dirname, "../build/asset-manifest.json"), {
   name: "../src/react-frontend/build/asset-manifest.json"
 })
