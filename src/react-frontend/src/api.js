@@ -2,7 +2,6 @@ export const checkApiKey = async (apiKey) =>
   fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, { method: "POST" })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Google API response", data)
       if (!data.error) {
         return data
       } else {
@@ -15,7 +14,7 @@ export const requestSmartCrop = async (preview = true, thumb, setNotice, urls, n
   const { size, attachment } = thumb
   const sizeURI = encodeURIComponent(size)
   const reqUrl = `${urls.proxy}?attachment=${attachment.id}&size=${sizeURI}&pre=${isPreview}`
-
+  console.log("request smart crop", reqUrl)
   const response = await fetch(reqUrl, {
     headers: new Headers({ "X-WP-Nonce": nonce })
   })

@@ -70,7 +70,7 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
 
       const conn = mediaApi.indexOf("?") > -1 ? "&" : "?"
       const url = `${mediaApi}${conn}include=${id}&search=${query}&page=${page}&per_page=40&mime_type=image/png,image/jpg,image/webp`
-
+      console.log("request images url", url)
       const response = await fetch(url, {
         headers: new Headers({ "X-WP-Nonce": nonce })
       })

@@ -24,13 +24,15 @@
     "start": "node ./scripts/start-non-split.js",
     "build": "node ./scripts/build-non-split.js",
     "preexport": "npm run build",
-    "postexport": "node ./scripts/verify-export.js",
     "export": "node ./scripts/export.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
+  },
+  "unusedscripts": {
+    "postexport": "node ./scripts/verify-export.js"
   },
   "eslintConfig": {
     "extends": "react-app"

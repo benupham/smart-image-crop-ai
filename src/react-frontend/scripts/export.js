@@ -2,8 +2,8 @@ const fs = require("fs")
 const archiver = require("archiver")
 const path = require("path")
 
-const prefix = "ghost-inspector" // folder name
-const output = fs.createWriteStream(path.resolve(__dirname, "../../ghost-inspector.zip"))
+const prefix = "smartcrop-image-ai" // folder name
+const output = fs.createWriteStream(path.resolve(__dirname, "../../../../smartcrop-image-ai.zip"))
 const archive = archiver("zip", { zlib: { level: 9 } }) // Sets the compression level.
 
 // listen for all archive data to be written
@@ -38,17 +38,18 @@ archive.on("error", function (err) {
 // pipe archive data to the file
 archive.pipe(output)
 
-archive.glob("../frontend/build/static/js/main.*.js", null, { name: "ghost-inspector.js", prefix })
-archive.glob("../frontend/build/static/css/main.*.css", null, {
-  name: "ghost-inspector.css",
-  prefix
+archive.glob("../../src/react-frontend/build/static/js/main.*.js", null)
+archive.glob("../../src/react-frontend/build/static/css/main.*.css", null)
+archive.glob("../../src/*.php")
+archive.file(path.resolve(__dirname, "../../../smart-crop-image-ai.php"), {
+  name: "smart-crop-image-ai.php"
 })
-archive.file(path.resolve(__dirname, "../../ghost-inspector.php"), {
-  name: "ghost-inspector.php",
-  prefix
+archive.file(path.resolve(__dirname, "../build/asset-manifest.json"), {
+  name: "../src/react-frontend/build/asset-manifest.json"
 })
-archive.file(path.resolve(__dirname, "../../README.txt"), { name: "README.txt", prefix })
-archive.file(path.resolve(__dirname, "../../LICENSE.txt"), { name: "LICENSE.txt", prefix })
+archive.append(null, { name: "preview-images/" })
+archive.file(path.resolve(__dirname, "../../../README.txt"), { name: "README.txt" })
+archive.file(path.resolve(__dirname, "../../../LICENSE.txt"), { name: "LICENSE.txt" })
 
 // finalize the archive (ie we are done appending files but streams have to finish yet)
 // 'close', 'end' or 'finish' may be fired right after calling this method so register to them beforehand
