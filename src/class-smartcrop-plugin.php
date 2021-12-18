@@ -23,7 +23,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     public function init()
     {
         // Deliberately off-center crop for the purposes of develoment/testing
-        // add_image_size('two by one', 400, 200, array('right', 'bottom'));
+        add_image_size('two by one', 400, 200, array('right', 'bottom'));
 
         add_filter('attachment_fields_to_edit', array($this, 'add_smartcrop_button_to_edit_media_modal_fields_area'), 99, 2);
 
@@ -38,8 +38,6 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
         add_action('rest_api_init', $this->get_method('add_smartcrop_api_routes'));
 
         add_filter('wp_generate_attachment_metadata', $this->get_method('delete_smartcrop_meta'), 10, 2);
-
-        register_uninstall_hook(__FILE__, 'uninstall');
     }
 
     public function admin_init()
@@ -75,7 +73,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
      */
     public function create_page_url($id)
     {
-        return add_query_arg('page', 'smartcrop-settings', admin_url('options-general.php')) . '&attachmentId=' . $id;
+        return add_query_arg('page', 'smartcrop-ai', admin_url('tools.php')) . '&attachmentId=' . $id;
     }
 
     /**
@@ -116,7 +114,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     {
         $additional = array(
             'smartcrop' => sprintf(
-                '<a href="options-general.php?page=smartcrop-settings">%s</a>',
+                '<a href="tools.php?page=smartcrop-ai">%s</a>',
                 esc_html__('Get Started', 'smartcrop')
             ),
         );
@@ -311,11 +309,6 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
             'nonce' => wp_create_nonce('wp_rest'),
             'imageSizes' => wp_get_registered_image_subsizes(),
         ));
-    }
-
-    public static function uninstall()
-    {
-        delete_option('smartcrop_api_key');
     }
 
     public static function write_log($log)
