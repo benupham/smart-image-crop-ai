@@ -22,8 +22,10 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
 
     public function init()
     {
-        // Deliberately off-center crop for the purposes of develoment/testing
-        add_image_size('two by one', 400, 200, array('right', 'bottom'));
+        // Add off-center crop thumbnail for the purposes of development/testing
+        if (get_site_url() == 'https://smart-image-ai.lndo.site') {
+            add_image_size('two by one', 400, 200, array('right', 'bottom'));
+        }
 
         add_filter('attachment_fields_to_edit', array($this, 'add_smartcrop_button_to_edit_media_modal_fields_area'), 99, 2);
 
@@ -114,7 +116,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     {
         $additional = array(
             'smartcropai' => sprintf(
-                '<a href="tools.php?page=smartcrop-ai">%s</a>',
+                '<a href="tools.php?page=smartcropai">%s</a>',
                 esc_html__('Get Started', 'smartcropai')
             ),
         );

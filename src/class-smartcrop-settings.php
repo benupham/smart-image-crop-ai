@@ -15,12 +15,12 @@ class SmartCrop_Settings extends SmartCrop_WP_Base
             __('Smart Image Crop AI Settings'),
             esc_html__('Smart Image Crop'),
             'manage_options',
-            'smartcrop-ai',
-            array($this, 'smartcrop_settings_do_page')
+            'smartcropai',
+            array($this, 'smartcropai_settings_do_page')
         );
     }
 
-    public function smartcrop_settings_do_page()
+    public function smartcropai_settings_do_page()
     {
 ?>
         <div id="smart_image_crop_settings"></div>

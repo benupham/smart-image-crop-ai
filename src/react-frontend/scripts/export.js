@@ -39,6 +39,7 @@ archive.on("error", function (err) {
 archive.pipe(output)
 
 archive.glob("../../src/react-frontend/build/static/js/main.*.js", null)
+archive.glob("../../src/react-frontend/build/static/js/main.*.js.map", null)
 archive.glob("../../src/react-frontend/build/static/css/main.*.css", null)
 archive.glob("../../src/*.php")
 archive.file(path.resolve(__dirname, "../../../smart-crop-image-ai.php"), {
