@@ -1,5 +1,7 @@
 <?php
 
+use SmartCrop_Plugin as GlobalSmartCrop_Plugin;
+
 class SmartCrop_Plugin extends SmartCrop_WP_Base
 {
     const VERSION = '0.9';
@@ -150,6 +152,11 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
         if (is_array(get_post_meta($attachment_id, 'smartcrop'))) {
             update_post_meta($attachment_id, 'smartcrop', null);
         }
+        $sizes = wp_get_registered_image_subsizes();
+        foreach ($sizes as $key => $size) {
+            $transient = 'smartcrop_' . $attachment_id . '_' . $key;
+            delete_transient($transient);
+        }
 
         return $metadata;
     }
@@ -179,12 +186,14 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     public function smartcrop_api_get_settings($request)
     {
         $api_key = get_option('smartcrop_api_key');
-        return new WP_REST_RESPONSE(array(
+        $response = new WP_REST_RESPONSE(array(
             'success' => true,
             'value' => array(
                 'apiKey' => !$api_key ? '' : $api_key,
             ),
         ), 200);
+        $response->set_headers(array('Cache-Control' => 'no-cache'));
+        return $response;
     }
 
     // save settings to WP DB
@@ -193,10 +202,12 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
         $json = $request->get_json_params();
         // store the values in wp_options table
         $updated_api_key = update_option('smartcrop_api_key', $json['apiKey']);
-        return new WP_REST_RESPONSE(array(
+        $response = new WP_REST_RESPONSE(array(
             'success' => $updated_api_key,
             'value' => $json,
         ), 200);
+        $response->set_headers(array('Cache-Control' => 'no-cache'));
+        return $response;
     }
 
     // check permissions
@@ -222,6 +233,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
 
     public function smartcrop_via_api($request)
     {
+        // $this::write_log($request);
 
         if (!$request->get_query_params()) {
             return new WP_REST_RESPONSE(array(
@@ -247,6 +259,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
 
         $smartcrop_image = new SmartCrop_Image($this->settings, $attachment_id, $metadata);
 
+
         if (!$smartcrop_image->get_image_size($size_name)) {
             return new WP_Error('no_file', esc_html__('No image for that size.', 'smart-image-crop'), array('status' => 500));
         }
@@ -265,12 +278,18 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
         // anymore, so other plugins are less likely to be triggered.
         wp_update_attachment_metadata($attachment_id, $smartcrop_image->get_wp_metadata());
 
-        return new WP_REST_RESPONSE(array(
+        // $this::write_log($result);
+
+        $response = new WP_REST_RESPONSE(array(
             'success' => true,
             'body' => array(
                 'smartcrop' => $result,
             ),
         ), 200);
+
+        $response->set_headers(array('Cache-Control' => 'no-cache'));
+
+        return $response;
     }
 
     public function enqueue_scripts($hook)

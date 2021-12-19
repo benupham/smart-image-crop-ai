@@ -103,6 +103,7 @@ class SmartCrop_Image
 
         $size = $this->get_image_size($size_name);
         if (file_exists(SMART_PREVIEWS_PATH . '/' . $size->name_of_file)) {
+            error_log('preview image exists for ' . $this->wp_metadata['file']);
             return true;
         }
         return false;
@@ -110,7 +111,6 @@ class SmartCrop_Image
 
     public function get_smartcrop($size_name, $is_preview)
     {
-
         $size = $this->get_image_size($size_name);
 
         $gcv_credit = 0;
@@ -232,6 +232,8 @@ class SmartCrop_Image
     {
 
         $smartcrop_meta = get_post_meta($this->id, 'smartcrop', true);
+        SmartCrop_Plugin::write_log($size_name . ' metadata is ');
+        SmartCrop_Plugin::write_log($smartcrop_meta);
 
         if (!is_array($smartcrop_meta)) {
 

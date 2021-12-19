@@ -52,7 +52,7 @@
   left: 50%;
   margin-left: -40px;
 }
-.crops-loading .thumb.checked .lds-ring {
+.crops-loading .thumb.loading .lds-ring {
   display: block;
   z-index: 10;
 }

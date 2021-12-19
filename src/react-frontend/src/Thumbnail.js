@@ -5,10 +5,11 @@ const Thumbnail = (props) => {
   const thumb = props.thumb
   const id = thumb.size + "_" + thumb.attachment.id
   const checked = thumb.isChecked ? "checked" : ""
+  const loading = thumb.isLoading ? "loading" : ""
   const smartcrop = thumb.smartcrop ? "smartcrop" : ""
 
   return (
-    <div key={id} className={`thumb ${checked} ${smartcrop}`}>
+    <div key={id} className={`thumb ${checked} ${loading} ${smartcrop}`}>
       <div className="lds-ring">
         <div></div>
         <div></div>

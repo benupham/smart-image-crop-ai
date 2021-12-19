@@ -23,6 +23,7 @@ export const collateThumbs = (imagesJson, croppedSizes, filterCropped) => {
         const thumb = details
         thumb.size = size
         thumb.isChecked = false
+        thumb.isLoading = false
         thumb.previewFile = ""
         thumb.attachment = {}
         thumb.attachment.id = image.id

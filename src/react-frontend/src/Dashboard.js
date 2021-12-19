@@ -19,15 +19,20 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
   const handleSubmit = async (e) => {
     setCropsLoading(true)
 
-    const preview = e.target.id === "save" ? false : true
-
-    const reqCrops = thumbs.filter((thumb) => thumb.isChecked === true)
-    const promisesPromises = reqCrops.map(async (thumb) => {
-      const newThumb = await requestSmartCrop(preview, thumb, setNotice, urls, nonce)
-      const newThumbs = thumbs.map((t) => (newThumb.file === t.file ? (t = newThumb) : t))
-      setThumbs(newThumbs)
-    })
-    await Promise.all(promisesPromises)
+    for (let i = 0; i < thumbs.length; i++) {
+      if (thumbs[i].isChecked) {
+        thumbs[i].isLoading = true
+        setThumbs([...thumbs])
+        const preview = e.target.id === "save" ? false : true
+        const newThumb = await requestSmartCrop(preview, thumbs[i], urls, nonce)
+        if (!newThumb.cropError) {
+          const newThumbs = thumbs.map((t) => (newThumb.file === t.file ? (t = newThumb) : t))
+          setThumbs(newThumbs)
+        } else {
+          setNotice([newThumb.cropError, "error"])
+        }
+      }
+    }
 
     setCropsLoading(false)
   }
@@ -72,7 +77,7 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
       const url = `${mediaApi}${conn}include=${id}&search=${query}&page=${page}&per_page=40&mime_type=image/png,image/jpg,image/webp`
       console.log("request images url", url)
       const response = await fetch(url, {
-        headers: new Headers({ "X-WP-Nonce": nonce })
+        headers: new Headers({ "X-WP-Nonce": nonce, "Cache-Control": "no-cache" })
       })
       const data = await response.json()
 
@@ -97,6 +102,9 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
 
       setErrorMessage("")
       const thumbs = collateThumbs(data, croppedSizes, filterCropped)
+      if (thumbs.length == 0) {
+        //TODO a message that there are no unsmart-cropped thumbs.
+      }
       setThumbs(thumbs)
     }
 
