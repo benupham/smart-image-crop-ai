@@ -1,7 +1,5 @@
 <?php
 
-use SmartCrop_Plugin as GlobalSmartCrop_Plugin;
-
 class SmartCrop_Plugin extends SmartCrop_WP_Base
 {
     const VERSION = '0.9';
@@ -75,7 +73,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
      */
     public function create_page_url($id)
     {
-        return add_query_arg('page', 'smartcrop-ai', admin_url('tools.php')) . '&attachmentId=' . $id;
+        return add_query_arg('page', 'smartcropai', admin_url('tools.php')) . '&attachmentId=' . $id;
     }
 
     /**
@@ -86,17 +84,17 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
         global $post;
 
         echo '<div class="misc-pub-section">';
-        echo '<a href="' . esc_url($this->create_page_url($post->ID)) . '" class="button-secondary button-large" title="' . esc_attr(__('Smartcrop the thumbnails for this single image', 'smartcrop')) . '">' . _x('Smartcrop Thumbnails', 'action for a single image', 'smartcrop') . '</a>';
+        echo '<a href="' . esc_url($this->create_page_url($post->ID)) . '" class="button-secondary button-large" title="' . esc_attr(__('Smartcrop the thumbnails for this single image', 'smartcropai')) . '">' . _x('Smartcrop Thumbnails', 'action for a single image', 'smartcropai') . '</a>';
         echo '</div>';
     }
 
     public function add_smartcrop_button_to_edit_media_modal_fields_area($form_fields, $post)
     {
 
-        $form_fields['smartcrop'] = array(
+        $form_fields['smartcropai'] = array(
             'label' => '',
             'input' => 'html',
-            'html' => '<a href="' . esc_url($this->create_page_url($post->ID)) . '" class="button-secondary button-large" title="' . esc_attr(__('Smartcrop the thumbnails for this single image', 'smartcrop')) . '">' . _x('Smartcrop Thumbnails', 'action for a single image', 'smartcrop') . '</a>',
+            'html' => '<a href="' . esc_url($this->create_page_url($post->ID)) . '" class="button-secondary button-large" title="' . esc_attr(__('Smartcrop the thumbnails for this single image', 'smartcropai')) . '">' . _x('Smartcrop Thumbnails', 'action for a single image', 'smartcropai') . '</a>',
             'show_in_modal' => true,
             'show_in_edit' => false,
         );
@@ -107,7 +105,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     public function add_smartcrop_link_to_media_list_view($actions, $post)
     {
 
-        $actions['smartcrop_thumbnails'] = '<a href="' . esc_url($this->create_page_url($post->ID)) . '" title="' . esc_attr(__('Smartcrop the thumbnails for this single image', 'smartcrop')) . '">' . _x('Smartcrop', 'action for a single image', 'smartcrop') . '</a>';
+        $actions['smartcrop_thumbnails'] = '<a href="' . esc_url($this->create_page_url($post->ID)) . '" title="' . esc_attr(__('Smartcrop the thumbnails for this single image', 'smartcropai')) . '">' . _x('Smartcropai', 'action for a single image', 'smartcropai') . '</a>';
 
         return $actions;
     }
@@ -115,9 +113,9 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     public function add_plugin_links($current_links)
     {
         $additional = array(
-            'smartcrop' => sprintf(
+            'smartcropai' => sprintf(
                 '<a href="tools.php?page=smartcrop-ai">%s</a>',
-                esc_html__('Get Started', 'smartcrop')
+                esc_html__('Get Started', 'smartcropai')
             ),
         );
         return array_merge($additional, $current_links);
@@ -127,7 +125,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     {
         register_rest_field(
             'attachment',
-            'smartcrop',
+            'smartcropai',
             array(
                 'get_callback' => $this->get_method('get_smartcrop_custom_meta'),
                 'update_callback' => null,
@@ -139,7 +137,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     public function get_smartcrop_custom_meta($object)
     {
 
-        $the_meta = get_post_meta($object['id'], 'smartcrop', true);
+        $the_meta = get_post_meta($object['id'], 'smartcropai', true);
 
         if (is_null($the_meta) || empty($the_meta)) {
             return null;
@@ -149,8 +147,8 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
 
     public function delete_smartcrop_meta($metadata, $attachment_id)
     {
-        if (is_array(get_post_meta($attachment_id, 'smartcrop'))) {
-            update_post_meta($attachment_id, 'smartcrop', null);
+        if (is_array(get_post_meta($attachment_id, 'smartcropai'))) {
+            update_post_meta($attachment_id, 'smartcropai', null);
         }
         $sizes = wp_get_registered_image_subsizes();
         foreach ($sizes as $key => $size) {
@@ -185,7 +183,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     // get saved settings from WP DB
     public function smartcrop_api_get_settings($request)
     {
-        $api_key = get_option('smartcrop_api_key');
+        $api_key = get_option('smartcropai_api_key');
         $response = new WP_REST_RESPONSE(array(
             'success' => true,
             'value' => array(
@@ -201,7 +199,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     {
         $json = $request->get_json_params();
         // store the values in wp_options table
-        $updated_api_key = update_option('smartcrop_api_key', $json['apiKey']);
+        $updated_api_key = update_option('smartcropai_api_key', $json['apiKey']);
         $response = new WP_REST_RESPONSE(array(
             'success' => $updated_api_key,
             'value' => $json,
@@ -218,7 +216,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
             return true;
         }
 
-        return new WP_Error('rest_forbidden', esc_html__('You do not have permissions to view this data.', 'smart-image-crop'), array('status' => 401));
+        return new WP_Error('rest_forbidden', esc_html__('You do not have permissions to view this data.', 'smartcropai'), array('status' => 401));
     }
 
     public function smartcrop_proxy_permissions_check()
@@ -259,9 +257,8 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
 
         $smartcrop_image = new SmartCrop_Image($this->settings, $attachment_id, $metadata);
 
-
         if (!$smartcrop_image->get_image_size($size_name)) {
-            return new WP_Error('no_file', esc_html__('No image for that size.', 'smart-image-crop'), array('status' => 500));
+            return new WP_Error('no_file', esc_html__('No image for that size.', 'smartcropai'), array('status' => 500));
         }
 
         $result = $smartcrop_image->get_smartcrop($size_name, $is_preview);
@@ -283,7 +280,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
         $response = new WP_REST_RESPONSE(array(
             'success' => true,
             'body' => array(
-                'smartcrop' => $result,
+                'smartcropai' => $result,
             ),
         ), 200);
 

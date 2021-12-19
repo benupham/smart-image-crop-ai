@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { Accordion } from "./Accordion"
 import { checkApiKey } from "./api"
 
@@ -6,6 +6,7 @@ const Settings = ({ nonce, urls, croppedSizes, setNotice }) => {
   const [apiKey, setApiKey] = useState("")
   const [isSaving, setSaving] = useState(false)
   const [isGetting, setGetting] = useState(true)
+  const [isOpen, setOpen] = useState(false)
 
   const updateSettings = async (event) => {
     event.preventDefault()
@@ -18,7 +19,7 @@ const Settings = ({ nonce, urls, croppedSizes, setNotice }) => {
         "X-WP-Nonce": nonce
       })
     })
-    // setNotice(null)
+
     // check if API key is valid
     try {
       const data = await checkApiKey(apiKey)
@@ -49,6 +50,9 @@ const Settings = ({ nonce, urls, croppedSizes, setNotice }) => {
     })
     json = await response.json()
     setApiKey(json.value.apiKey)
+    if (json.value.apiKey.length == 0) {
+      setOpen(true)
+    }
     if (elapsed) {
       setGetting(false)
     }
@@ -60,7 +64,7 @@ const Settings = ({ nonce, urls, croppedSizes, setNotice }) => {
   }, [nonce, urls])
 
   return (
-    <Accordion title={"Settings"}>
+    <Accordion title={"Settings"} open={isOpen}>
       <form onSubmit={updateSettings}>
         <p>
           <label>
@@ -69,16 +73,16 @@ const Settings = ({ nonce, urls, croppedSizes, setNotice }) => {
           </label>
         </p>
         {isGetting && <p>Loading...</p>}
-        {!isGetting && !apiKey && (
-          <p>
-            <a
-              href="https://cloud.google.com/vision/docs/setup"
-              target="_blank"
-              rel="noopener noreferrer">
-              Get your Google Cloud Vision API key here.
-            </a>
-          </p>
-        )}
+
+        <p>
+          <a
+            href="https://cloud.google.com/vision/docs/setup"
+            target="_blank"
+            rel="noopener noreferrer">
+            Get your Google Cloud Vision API key here.
+          </a>
+        </p>
+
         <p>
           <button type="submit" className="button button-primary" disabled={isSaving}>
             Save API key

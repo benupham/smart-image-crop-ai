@@ -231,7 +231,7 @@ class SmartCrop_Image
     public function update_smartcrop_meta($size_name)
     {
 
-        $smartcrop_meta = get_post_meta($this->id, 'smartcrop', true);
+        $smartcrop_meta = get_post_meta($this->id, 'smartcropai', true);
         SmartCrop_Plugin::write_log($size_name . ' metadata is ');
         SmartCrop_Plugin::write_log($smartcrop_meta);
 
@@ -245,39 +245,14 @@ class SmartCrop_Image
             $smartcrop_meta[$size_name] = time();
         }
 
-        $result = update_post_meta($this->id, 'smartcrop', $smartcrop_meta);
+        $result = update_post_meta($this->id, 'smartcropai', $smartcrop_meta);
 
         /*
         This action is being used by WPML:
         https://gist.github.com/srdjan-jcc/5c47685cda4da471dff5757ba3ce5ab1
          */
-        do_action('update_smartcrop_meta', $this->id, 'smartcrop', $this->wp_metadata);
+        do_action('update_smartcrop_meta', $this->id, 'smartcropai', $this->wp_metadata);
     }
-
-    // public function get_image_sizes()
-    // {
-    //     $original = isset($this->sizes[self::ORIGINAL])
-    //         ? array(
-    //             self::ORIGINAL => $this->sizes[self::ORIGINAL],
-    //         )
-    //         : array();
-    //     $compressed = array();
-    //     $uncompressed = array();
-    //     foreach ($this->sizes as $size_name => $size) {
-    //         if (self::is_original($size_name)) {
-    //             continue;
-    //         }
-
-    //         if ($size->has_been_compressed()) {
-    //             $compressed[$size_name] = $size;
-    //         } else {
-    //             $uncompressed[$size_name] = $size;
-    //         }
-    //     }
-    //     ksort($compressed);
-    //     ksort($uncompressed);
-    //     return $original + $compressed + $uncompressed;
-    // }
 
     public function get_image_size($size = self::ORIGINAL, $create = false)
     {

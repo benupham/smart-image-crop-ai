@@ -12,9 +12,9 @@ export const collateThumbs = (imagesJson, croppedSizes, filterCropped) => {
     const thumbs = Object.entries(image.media_details.sizes).reduce((acc, [size, details]) => {
       if (
         filterCropped &&
-        image.smartcrop &&
-        Object.prototype.hasOwnProperty.call(image.smartcrop, size) &&
-        isInteger(image.smartcrop[size])
+        image.smartcropai &&
+        Object.prototype.hasOwnProperty.call(image.smartcropai, size) &&
+        isInteger(image.smartcropai[size])
       ) {
         return acc
       }

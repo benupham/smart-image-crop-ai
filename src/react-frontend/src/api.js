@@ -39,7 +39,7 @@ export const requestSmartCrop = async (preview = true, thumb, urls, nonce) => {
     thumb.smartcrop = true
     thumb.isLoading = false
     if (preview === true) {
-      thumb.url = data.body.smartcrop.image_url
+      thumb.url = data.body.smartcropai.image_url
     } else {
       thumb.isChecked = false
       thumb.cacheId = Date.now()

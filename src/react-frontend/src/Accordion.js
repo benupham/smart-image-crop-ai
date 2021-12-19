@@ -12,7 +12,7 @@ const AccordionContent = styled.div`
   transition: 0.5s;
 `
 
-export const Accordion = (props) => {
+export const Accordion = ({ title, open, children }) => {
   const content = useRef(null)
   const [height, setHeight] = useState(0)
   const [direction, setDirection] = useState("right")
@@ -22,16 +22,23 @@ export const Accordion = (props) => {
     setDirection(height === 0 ? "down" : "right")
   }
 
+  useEffect(() => {
+    console.log("inside accordion open:", open)
+    if (open) {
+      toggleAccordion()
+    }
+  }, [open])
+
   return (
     <>
       <h3>
         <AccordionTitle onClick={toggleAccordion}>
-          {props.title}
+          {title}
           <i className={`arrow-accordion ${direction}`}></i>
         </AccordionTitle>
       </h3>
       <AccordionContent height={height} ref={content}>
-        {props.children}
+        {children}
       </AccordionContent>
     </>
   )

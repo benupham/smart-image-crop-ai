@@ -3,7 +3,7 @@
 abstract class SmartCrop_WP_Base
 {
     const NAME = 'smartcrop-images';
-    const PREFIX = 'smartcropai_';
+    const PREFIX = 'smartcropai';
 
     private static $wp_version;
 
@@ -28,7 +28,7 @@ abstract class SmartCrop_WP_Base
 
     protected static function get_prefixed_name($name)
     {
-        return self::PREFIX . $name;
+        return self::PREFIX . '_' . $name;
     }
 
     public function __construct()

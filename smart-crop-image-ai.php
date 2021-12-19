@@ -5,7 +5,7 @@
  * Description: Use the power of machine learning to crop your WordPress images perfectly.
  * Version: 0.9
  * Author: Ben Upham
- * Text Domain: smartcrop
+ * Text Domain: smartcropai
  * License: GPLv2 or later
  */
 
