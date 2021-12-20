@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState } from "react"
 import "./dashboard.css"
-import { collateThumbs } from "./helper"
+import { collateThumbs, resetUrlParams } from "./helper"
 import Thumbnail from "./Thumbnail"
 import FilterBar from "./Filterbar"
 import lodash from "lodash"
@@ -19,11 +19,12 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
   const handleSubmit = async (e) => {
     setCropsLoading(true)
 
+    const preview = e.target.id === "save" ? false : true
     for (let i = 0; i < thumbs.length; i++) {
       if (thumbs[i].isChecked) {
         thumbs[i].isLoading = true
         setThumbs([...thumbs])
-        const preview = e.target.id === "save" ? false : true
+
         const newThumb = await requestSmartCrop(preview, thumbs[i], urls, nonce)
         if (!newThumb.cropError) {
           const newThumbs = thumbs.map((t) => (newThumb.file === t.file ? (t = newThumb) : t))
@@ -33,11 +34,13 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
         }
       }
     }
+    if (preview === false) resetUrlParams()
 
     setCropsLoading(false)
   }
 
   const handleSearch = (e) => {
+    resetUrlParams()
     const query = e.target.value
     setQuery(query)
     setPage(1)

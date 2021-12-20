@@ -107,7 +107,7 @@ class SmartCrop_Plugin extends SmartCrop_WP_Base
     public function add_smartcrop_link_to_media_list_view($actions, $post)
     {
 
-        $actions['smartcrop_thumbnails'] = '<a href="' . esc_url($this->create_page_url($post->ID)) . '" title="' . esc_attr(__('Smartcrop the thumbnails for this single image', 'smartcropai')) . '">' . _x('Smartcropai', 'action for a single image', 'smartcropai') . '</a>';
+        $actions['smartcrop_thumbnails'] = '<a href="' . esc_url($this->create_page_url($post->ID)) . '" title="' . esc_attr(__('Smartcrop the thumbnails for this single image', 'smartcropai')) . '">' . _x('Smartcrop', 'action for a single image', 'smartcropai') . '</a>';
 
         return $actions;
     }
