@@ -1,8 +1,8 @@
 === Smart Image Crop AI ===
 Contributors: bcupham
 Tags: resize images, crop images, images
-Requires at least: 5.8.0
-Tested up to: 5.8
+Requires at least: 5.1.0
+Tested up to: 5.8.2
 Requires PHP: 5.4
 Stable tag: 1.0
 License: GPLv2 or later
@@ -19,11 +19,11 @@ Smart Crop Image AI plugin solves all that -- automagically! Using the power of 
 
 == Features ==
 
-* Automagically crop not only faces, but whatever the "main focus" of an image is, based on Google's kabillion machine years of knowledge
+* Automagically crop not only faces, but whatever the "main focus" of an image is, based on Google's kabillion years of machine learning
 * Preview smart crops before saving them
 * Search for images to crop by file name
 * Adds a smart crop button to individual media files as well
-* Compatible with thumbnail regeneration and image optimization plugins 
+* Compatible with thumbnail regeneration and image optimization plugins (see below)
 
 == How Does It Work? ==
 
@@ -31,12 +31,12 @@ This plugin uses the Google Cloud Vision API to guess the perfect crop for an im
 
 == Is it Compatible With Image Optimization Plugins? ==
 
-Yes, but you may need to recompress any smart cropped images. If a smart cropped image is derived from an image that is already compressed, it is likely to be fairly small anyway. TinyPNG will keep track of what images have changed after compression. Smush and Shortpixel do not. 
+Yes, but you may need to recompress any smart cropped images. If a smart cropped image is derived from an image that is already compressed, it is likely to be fairly small anyway. TinyPNG will keep track of what images have changed after compression so you can recompress them. Smush and Shortpixel do not. 
 
 == Is it Compatible with WebP? ==
 
-Not yet. We plan to include automatic smart cropping of webp images in a future version. 
+Not yet. I plan to include automatic smart cropping of webp images in a future version. 
 
 == Is it Compatible with Retina? ==
 
-Not yet. We plan to include automatic smart cropping of retina images in a future version. 
+Not yet. I plan to include automatic smart cropping of retina images in a future version. 
