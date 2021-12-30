@@ -27,7 +27,7 @@ Smart Crop Image AI plugin solves all that -- automagically! Using the power of 
 
 == How Does It Work? ==
 
-This plugin uses the Google Cloud Vision API to guess the perfect crop for an image. It requires a Google Cloud Vision API key, which is free and can be acquired [here](https://cloud.google.com/vision/docs/setup). As of 2022, the first 1000 requests per month are free.
+This plugin uses the Google Cloud Vision API to guess the perfect crop for an image. It requires a Google Cloud Vision API key, which is free and can be acquired [here](https://cloud.google.com/vision/docs/setup). As of 2022, the first 1000 requests per month are free. If you need more that is between you and our Google overlords (i.e. you'll need to give them your credit card).
 
 == Is it Compatible With Image Optimization Plugins? ==
 

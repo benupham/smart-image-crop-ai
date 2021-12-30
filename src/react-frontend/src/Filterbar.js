@@ -5,6 +5,9 @@ const FilterBar = ({
   handleSearch,
   handleSubmit,
   handleCropFilter,
+  handleSelectAll,
+  setAllSelected,
+  allSelected,
   setPage,
   cropsLoading,
   page,
@@ -46,6 +49,9 @@ const FilterBar = ({
         </div>
       </div>
       <div className="saving">
+        <button className="button" id="select-all" onClick={() => setAllSelected(!allSelected)}>
+          {allSelected === true ? "Unselect all" : "Select all"}
+        </button>
         <input
           type="checkbox"
           checked={previewMode}

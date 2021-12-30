@@ -15,6 +15,7 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
   const [pageLoading, setPageLoading] = useState(true)
   const [cropsLoading, setCropsLoading] = useState(false)
   const [lastPage, setLastPage] = useState(null)
+  const [allSelected, setAllSelected] = useState(false)
 
   const handleSubmit = async (e) => {
     setCropsLoading(true)
@@ -47,13 +48,13 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
     setLastPage(null)
   }
 
+  const debouncedSearch = useMemo(() => lodash.debounce(handleSearch, 200), [])
+
   const handleCropFilter = (filterCropped) => {
     setCropsLoading(true)
     setCropFilter(filterCropped)
     setCropsLoading(false)
   }
-
-  const debouncedSearch = useMemo(() => lodash.debounce(handleSearch, 200), [])
 
   const handleThumbChecked = (e, i) => {
     const value = e.target.checked
@@ -62,6 +63,15 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
     )
     setThumbs(newThumbs)
   }
+
+  useEffect(() => {
+    const newThumbs = thumbs.map((t) => {
+      t.isChecked = allSelected
+      console.log(allSelected)
+      return t
+    })
+    setThumbs(newThumbs)
+  }, [allSelected])
 
   useEffect(() => {
     const requestImages = async (attachmentId) => {
@@ -79,6 +89,9 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
       const conn = mediaApi.indexOf("?") > -1 ? "&" : "?"
       const url = `${mediaApi}${conn}include=${id}&search=${query}&page=${page}&per_page=40&mime_type=image/png,image/jpg,image/webp`
       console.log("request images url", url)
+
+      setPageLoading(true)
+
       const response = await fetch(url, {
         headers: new Headers({ "X-WP-Nonce": nonce, "Cache-Control": "no-cache" })
       })
@@ -118,6 +131,10 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
     requestImages(id)
   }, [query, page, filterCropped])
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [page])
+
   return (
     <div className="smart_image_crop_wrapper wrap">
       <FilterBar
@@ -125,6 +142,8 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
         handleSearch={debouncedSearch}
         handleCropFilter={handleCropFilter}
         setPage={setPage}
+        setAllSelected={setAllSelected}
+        allSelected={allSelected}
         cropsLoading={cropsLoading}
         page={page}
         lastPage={lastPage}

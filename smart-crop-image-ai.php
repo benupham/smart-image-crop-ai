@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Smart Crop Image AI
  * Description: Use the power of machine learning to crop your WordPress images perfectly.
- * Version: 0.9
+ * Version: 1.0
  * Author: Ben Upham
  * Text Domain: smartcropai
  * License: GPLv2 or later

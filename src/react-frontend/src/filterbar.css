@@ -1,6 +1,6 @@
 .filterbar {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: space-between;
   box-sizing: border-box;
   margin: 12px 0 25px;
@@ -12,7 +12,7 @@
   color: #555;
   font-size: 13px;
   position: sticky;
-  top: 32px;
+  top: 52px;
   z-index: 10;
 }
 
