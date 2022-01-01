@@ -1,21 +1,62 @@
 import React, { useMemo, useEffect, useState, useRef } from "react"
 import "./dashboard.css"
-import { collateThumbs, resetUrlParams, getObserver } from "./helper"
+import { collateThumbs, resetUrlParams } from "./helper"
 import Thumbnail from "./Thumbnail"
 import FilterBar from "./Filterbar"
 import lodash, { merge } from "lodash"
 import { requestSmartCrop, requestImages } from "./api"
+import { getObserver } from "./hooks/infiniteScroll"
 
 const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
   const [thumbs, setThumbs] = useState([])
   const [query, setQuery] = useState("")
-  const [page, setPage] = useState(1)
+  // const [page, setPage] = useState(1)
   const [filterCropped, setCropFilter] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
   const [pageLoading, setPageLoading] = useState(true)
   const [cropsLoading, setCropsLoading] = useState(false)
   const [lastPage, setLastPage] = useState(false)
   const [allSelected, setAllSelected] = useState(false)
+  let page = 1
+
+  const handleGetImages = async (page) => {
+    const queryString = window.location.search
+    const urlParams = new URLSearchParams(queryString)
+    const id = urlParams.get("attachmentId") ? urlParams.get("attachmentId") : ""
+    const perPage = 10
+
+    setPageLoading(true)
+    const data = await requestImages(id, page, query, perPage)
+    setPageLoading(false)
+
+    if (data.length === 0 && thumbs.length === 0) {
+      setErrorMessage("No image sizes found.")
+      setThumbs([])
+      return
+    }
+
+    if (data.length === 0 || data.length < perPage) {
+      console.log("no more")
+      setLastPage(true)
+    }
+
+    if (data.code && data.code === "rest_post_invalid_page_number") {
+      console.log("last page reached")
+      setLastPage(true)
+      return
+    }
+
+    if (data.code) {
+      setErrorMessage(`<b>There was an error:</b> ${data.message}`)
+      return
+    }
+
+    setErrorMessage("")
+
+    const newThumbs = collateThumbs(data, croppedSizes)
+
+    setThumbs((_thumbs) => _thumbs.concat(newThumbs))
+  }
 
   const handleSubmit = async (e) => {
     setCropsLoading(true)
@@ -63,55 +104,14 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
     setThumbs(newThumbs)
   }, [allSelected])
 
-  useEffect(async () => {
-    console.log("page", page)
-    // if (lastPage) return
-    const queryString = window.location.search
-    const urlParams = new URLSearchParams(queryString)
-    const id = urlParams.get("attachmentId") ? urlParams.get("attachmentId") : ""
-    const perPage = 10
-
-    setPageLoading(true)
-    const data = await requestImages(id, page, query, perPage)
-    setPageLoading(false)
-
-    if (data.length === 0 && thumbs.length === 0) {
-      setErrorMessage("No image sizes found.")
-      setThumbs([])
-      return
-    }
-
-    if (data.length === 0 || data.length < perPage) {
-      console.log("no more")
-      setLastPage(true)
-    }
-
-    if (data.code && data.code === "rest_post_invalid_page_number") {
-      console.log("last page reached")
-      setLastPage(true)
-      return
-    }
-
-    if (data.code) {
-      setErrorMessage(`<b>There was an error:</b> ${data.message}`)
-      return
-    }
-
-    setErrorMessage("")
-
-    const newThumbs = collateThumbs(data, croppedSizes)
-
-    setThumbs((_thumbs) => _thumbs.concat(newThumbs))
-  }, [page])
-
   const loader = useRef(null)
   const observerRef = useRef(null)
 
   useEffect(() => {
     const options = {
       root: null,
-      rootMargin: "20px",
-      threshold: 1.0
+      rootMargin: "33%",
+      threshold: 0
     }
 
     const observer = getObserver(observerRef, handleObserver, options)
@@ -127,13 +127,19 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
   const handleObserver = (entities) => {
     const target = entities[0]
     if (target.isIntersecting === true) {
-      setPage((_page) => _page + 1)
+      // setPage((_page) => _page + 1)
+      handleGetImages(page)
+      page++
       console.log("fired new page")
     }
   }
 
   return (
     <div className="smart_image_crop_wrapper wrap">
+      <div>
+        Specific images can be smartcropped by opening them in the media library and clicking the
+        Smart Crop button.
+      </div>
       <FilterBar
         handleSubmit={handleSubmit}
         handleCropFilter={handleCropFilter}
