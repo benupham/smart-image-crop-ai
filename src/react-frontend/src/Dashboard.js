@@ -1,10 +1,10 @@
-import React, { useMemo, useEffect, useState } from "react"
+import React, { useMemo, useEffect, useState, useRef } from "react"
 import "./dashboard.css"
-import { collateThumbs, resetUrlParams } from "./helper"
+import { collateThumbs, resetUrlParams, getObserver } from "./helper"
 import Thumbnail from "./Thumbnail"
 import FilterBar from "./Filterbar"
-import lodash from "lodash"
-import { requestSmartCrop } from "./api"
+import lodash, { merge } from "lodash"
+import { requestSmartCrop, requestImages } from "./api"
 
 const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
   const [thumbs, setThumbs] = useState([])
@@ -14,7 +14,7 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
   const [errorMessage, setErrorMessage] = useState("")
   const [pageLoading, setPageLoading] = useState(true)
   const [cropsLoading, setCropsLoading] = useState(false)
-  const [lastPage, setLastPage] = useState(null)
+  const [lastPage, setLastPage] = useState(false)
   const [allSelected, setAllSelected] = useState(false)
 
   const handleSubmit = async (e) => {
@@ -40,16 +40,6 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
     setCropsLoading(false)
   }
 
-  const handleSearch = (e) => {
-    resetUrlParams()
-    const query = e.target.value
-    setQuery(query)
-    setPage(1)
-    setLastPage(null)
-  }
-
-  const debouncedSearch = useMemo(() => lodash.debounce(handleSearch, 200), [])
-
   const handleCropFilter = (filterCropped) => {
     setCropsLoading(true)
     setCropFilter(filterCropped)
@@ -67,86 +57,89 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
   useEffect(() => {
     const newThumbs = thumbs.map((t) => {
       t.isChecked = allSelected
-      console.log(allSelected)
+      // console.log(allSelected)
       return t
     })
     setThumbs(newThumbs)
   }, [allSelected])
 
-  useEffect(() => {
-    const requestImages = async (attachmentId) => {
-      if (!window.smart_image_crop_ajax || !window.smart_image_crop_ajax.urls) {
-        console.error("Can't find WordPress API endpoints.")
-        setErrorMessage(
-          "Can't find WordPress REST API endpoints. Is the API restricted or turned off?"
-        )
-      }
-      const mediaApi = window.smart_image_crop_ajax.urls.media
-      const nonce = window.smart_image_crop_ajax.nonce
-
-      const id = query.length > 0 || page > 1 ? "" : attachmentId
-
-      const conn = mediaApi.indexOf("?") > -1 ? "&" : "?"
-      const url = `${mediaApi}${conn}include=${id}&search=${query}&page=${page}&per_page=40&mime_type=image/png,image/jpg,image/webp`
-      console.log("request images url", url)
-
-      setPageLoading(true)
-
-      const response = await fetch(url, {
-        headers: new Headers({ "X-WP-Nonce": nonce, "Cache-Control": "no-cache" })
-      })
-      const data = await response.json()
-
-      setPageLoading(false)
-
-      if (data.length === 0) {
-        setErrorMessage("No image sizes found.")
-        setThumbs([])
-        return
-      }
-
-      if (data.code && data.code === "rest_post_invalid_page_number") {
-        setLastPage(page)
-        setPage(page - 1)
-        return
-      }
-
-      if (data.code) {
-        setErrorMessage(`There was an error: ${data.message}`)
-        return
-      }
-
-      setErrorMessage("")
-      const thumbs = collateThumbs(data, croppedSizes, filterCropped)
-      if (thumbs.length == 0) {
-        //TODO a message that there are no unsmart-cropped thumbs.
-      }
-      setThumbs(thumbs)
-    }
-
+  useEffect(async () => {
+    console.log("page", page)
+    // if (lastPage) return
     const queryString = window.location.search
     const urlParams = new URLSearchParams(queryString)
     const id = urlParams.get("attachmentId") ? urlParams.get("attachmentId") : ""
+    const perPage = 10
 
-    requestImages(id)
-  }, [query, page, filterCropped])
+    setPageLoading(true)
+    const data = await requestImages(id, page, query, perPage)
+    setPageLoading(false)
+
+    if (data.length === 0 && thumbs.length === 0) {
+      setErrorMessage("No image sizes found.")
+      setThumbs([])
+      return
+    }
+
+    if (data.length === 0 || data.length < perPage) {
+      console.log("no more")
+      setLastPage(true)
+    }
+
+    if (data.code && data.code === "rest_post_invalid_page_number") {
+      console.log("last page reached")
+      setLastPage(true)
+      return
+    }
+
+    if (data.code) {
+      setErrorMessage(`<b>There was an error:</b> ${data.message}`)
+      return
+    }
+
+    setErrorMessage("")
+
+    const newThumbs = collateThumbs(data, croppedSizes)
+
+    setThumbs((_thumbs) => _thumbs.concat(newThumbs))
+  }, [page])
+
+  const loader = useRef(null)
+  const observerRef = useRef(null)
 
   useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [page])
+    const options = {
+      root: null,
+      rootMargin: "20px",
+      threshold: 1.0
+    }
+
+    const observer = getObserver(observerRef, handleObserver, options)
+    if (loader.current) {
+      observer.observe(loader.current)
+    }
+    if (lastPage) {
+      console.log("disconnected observer")
+      return observer.disconnect()
+    }
+  }, [lastPage])
+
+  const handleObserver = (entities) => {
+    const target = entities[0]
+    if (target.isIntersecting === true) {
+      setPage((_page) => _page + 1)
+      console.log("fired new page")
+    }
+  }
 
   return (
     <div className="smart_image_crop_wrapper wrap">
       <FilterBar
         handleSubmit={handleSubmit}
-        handleSearch={debouncedSearch}
         handleCropFilter={handleCropFilter}
-        setPage={setPage}
         setAllSelected={setAllSelected}
         allSelected={allSelected}
         cropsLoading={cropsLoading}
-        page={page}
-        lastPage={lastPage}
       />
       <div
         className={
@@ -159,6 +152,24 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
             <p>{errorMessage}</p>
           </div>
         )}
+        {!errorMessage &&
+          thumbs &&
+          thumbs.map((thumb, index) => {
+            if (!!filterCropped && !!thumb.smartcropped) {
+              return null
+            } else {
+              return (
+                <Thumbnail
+                  thumb={thumb}
+                  key={index}
+                  index={index}
+                  handleChange={handleThumbChecked}
+                />
+              )
+            }
+          })}
+      </div>
+      <div ref={loader}>
         {pageLoading === true && (
           <div className="loading">
             <div className="lds-ring">
@@ -169,11 +180,6 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
             </div>
           </div>
         )}
-        {!errorMessage &&
-          thumbs &&
-          thumbs.map((thumb, index) => (
-            <Thumbnail thumb={thumb} key={index} index={index} handleChange={handleThumbChecked} />
-          ))}
       </div>
     </div>
   )

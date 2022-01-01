@@ -7,18 +7,9 @@ import { isInteger } from "lodash"
  * @param {boolean} filterCropped Whether to filter out already smartcropped images
  * @returns {array}
  */
-export const collateThumbs = (imagesJson, croppedSizes, filterCropped) => {
+export const collateThumbs = (imagesJson, croppedSizes) => {
   const allThumbs = imagesJson.reduce((allacc, image) => {
     const thumbs = Object.entries(image.media_details.sizes).reduce((acc, [size, details]) => {
-      if (
-        filterCropped &&
-        image.smartcropai &&
-        Object.prototype.hasOwnProperty.call(image.smartcropai, size) &&
-        isInteger(image.smartcropai[size])
-      ) {
-        return acc
-      }
-
       if (croppedSizes.includes(size)) {
         const thumb = details
         thumb.size = size
@@ -34,7 +25,15 @@ export const collateThumbs = (imagesJson, croppedSizes, filterCropped) => {
         thumb.url = thumb.source_url
         thumb.cacheId = Date.now()
         thumb.loading = false
-        thumb.smartcrop = false
+        if (
+          image.smartcropai &&
+          Object.prototype.hasOwnProperty.call(image.smartcropai, size) &&
+          isInteger(image.smartcropai[size])
+        ) {
+          thumb.smartcropped = true
+        } else {
+          thumb.smartcropped = false
+        }
         acc.push(thumb)
       }
       return acc
@@ -77,4 +76,15 @@ export const resetUrlParams = () => {
       window.history.pushState({}, document.title, `${window.location.pathname}?${params}`)
     }
   }
+}
+
+export function getObserver(ref, handleObserver, options) {
+  let observer = ref.current
+  if (observer !== null) {
+    return observer
+  }
+
+  let newObserver = new IntersectionObserver(handleObserver, options)
+  ref.current = newObserver
+  return newObserver
 }

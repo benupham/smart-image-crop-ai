@@ -18,7 +18,7 @@ const FilterBar = ({
   return (
     <div className="filterbar">
       <div className="pagination">
-        <input
+        {/* <input
           type="text"
           disabled={cropsLoading}
           onChange={handleSearch}
@@ -35,6 +35,9 @@ const FilterBar = ({
           onClick={() => setPage(page + 1)}
           className="next button button-primary">
           Next Page
+        </button> */}
+        <button className="button" id="select-all" onClick={() => setAllSelected(!allSelected)}>
+          {allSelected === true ? "Unselect all" : "Select all"}
         </button>
         <div className="filter-cropped">
           <select
@@ -49,9 +52,6 @@ const FilterBar = ({
         </div>
       </div>
       <div className="saving">
-        <button className="button" id="select-all" onClick={() => setAllSelected(!allSelected)}>
-          {allSelected === true ? "Unselect all" : "Select all"}
-        </button>
         <input
           type="checkbox"
           checked={previewMode}
@@ -69,7 +69,7 @@ const FilterBar = ({
           {previewMode === false ? (
             <span style={{ color: "red" }}>Save & Overwrite</span>
           ) : (
-            "Preview"
+            "Preview Smart Crops"
           )}
         </button>
       </div>
