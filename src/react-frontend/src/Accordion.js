@@ -23,7 +23,6 @@ export const Accordion = ({ title, open, children }) => {
   }
 
   useEffect(() => {
-    console.log("inside accordion open:", open)
     if (open) {
       toggleAccordion()
     }

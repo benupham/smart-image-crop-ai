@@ -70,7 +70,6 @@ export const resetUrlParams = () => {
   if ("URLSearchParams" in window) {
     const search = window.location.search
     if (search) {
-      console.log("search params")
       const params = new URLSearchParams(search)
       params.delete("attachmentId")
       window.history.pushState({}, document.title, `${window.location.pathname}?${params}`)

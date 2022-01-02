@@ -10,7 +10,6 @@ import { getObserver } from "./hooks/infiniteScroll"
 const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
   const [thumbs, setThumbs] = useState([])
   const [query, setQuery] = useState("")
-  // const [page, setPage] = useState(1)
   const [filterCropped, setCropFilter] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
   const [pageLoading, setPageLoading] = useState(true)
@@ -36,12 +35,10 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
     }
 
     if (data.length === 0 || data.length < perPage) {
-      console.log("no more")
       setLastPage(true)
     }
 
     if (data.code && data.code === "rest_post_invalid_page_number") {
-      console.log("last page reached")
       setLastPage(true)
       return
     }
@@ -98,7 +95,6 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
   useEffect(() => {
     const newThumbs = thumbs.map((t) => {
       t.isChecked = allSelected
-      // console.log(allSelected)
       return t
     })
     setThumbs(newThumbs)
@@ -119,7 +115,6 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
       observer.observe(loader.current)
     }
     if (lastPage) {
-      console.log("disconnected observer")
       return observer.disconnect()
     }
   }, [lastPage])
@@ -130,15 +125,15 @@ const Dashboard = ({ urls, nonce, croppedSizes, setNotice }) => {
       // setPage((_page) => _page + 1)
       handleGetImages(page)
       page++
-      console.log("fired new page")
     }
   }
 
   return (
     <div className="smart_image_crop_wrapper wrap">
       <div>
-        Specific images can be smartcropped by opening them in the media library and clicking the
-        Smart Crop button.
+        Specific images can be smartcropped by opening them in the{" "}
+        <a href="/wp-admin/upload.php?mode=grid">media library</a> and clicking the SmartCrop
+        Thumbnails button.
       </div>
       <FilterBar
         handleSubmit={handleSubmit}
